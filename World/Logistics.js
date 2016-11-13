@@ -49,7 +49,7 @@ Logistics.prototype.Run = function(spawn) {
 
     _.forEach(_.sortByOrder(stack, ['priority'], ['asc']), function(data) {
         var action = data.action;
-        console.log(_.map(data));
+        //console.log(_.map(data)); // debug orders
         for (var i = 0; i < data.need - data.has; i++) {
             var creep;
             if(freeWorkers.length > 0) {
