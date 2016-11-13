@@ -4,7 +4,7 @@ var logistics = {};
 
 module.exports.loop = function () {
     _.forEach(Game.spawns, function(spawn) {
-        if (! logistics[spawn.name]) {
+        if (! logistics[spawn.name] || true/**dev mode */) {
             //console.log("Create logistic for " + spawn.name);
             logistics[spawn.name] = new My.Logistics(
                 [
