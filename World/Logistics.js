@@ -1,8 +1,9 @@
 var MyCreep = require("./Creep");
 
-function Logistics() {
+function Logistics(plugins) {
     this.Spawn;
     this.ActionTargets;
+    this.Plugins = plugins;
 }
 Logistics.prototype = Object.create(Object);
 module.exports = Logistics.prototype.constructor = Logistics;
@@ -71,7 +72,13 @@ Logistics.prototype.Run = function(spawn) {
     // run workers
     workers.forEach(function(creep) { creep.Run(); });
 
-    console.log("targets:", JSON.stringify(this.ActionTargets));
+    if (this.Plugins instanceof Array) {
+        this.Plugins.forEach(function(plugin) {
+            plugin.Run(this);
+        })
+    }
+
+    //console.log("targets:", JSON.stringify(this.ActionTargets));
 }
 
 Logistics.prototype.RunTimeData = function(spawn) {
@@ -124,11 +131,12 @@ Logistics.prototype.UpdateBuildingTargets = function() {
 Logistics.prototype.CheckNumWorker = function(neededWorker) {
     var self = this;
     var workers = [];
+    var limit = this.ActionTargets.Charge.length * 4;
     _.forEach(Game.creeps, function(creep) {
         workers.push(new MyCreep(self, creep.name));
     });
     var diff = neededWorker - workers.length 
-    for(var i = 0; i < diff; i++) {
+    for(var i = 0; i < diff && workers.length < limit; i++) {
         //console.log("Create new worker");
         var newCreep = new MyCreep(self, null, [WORK, CARRY, MOVE, MOVE]);
         if (!Game.creeps[newCreep.Name]) break; // can't create more
@@ -141,7 +149,7 @@ Logistics.prototype.CheckNumWorker = function(neededWorker) {
 Logistics.prototype.SearchRequirements = function() {
     var stack = {
         Charge: {
-            action: "Carge"
+            action: "Charge"
             , need: 0
             , has: 0
             , priority: 0
