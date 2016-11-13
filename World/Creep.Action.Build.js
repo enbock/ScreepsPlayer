@@ -1,5 +1,11 @@
 module.exports = function(myCreep) {
     var creep = myCreep.Me;
+
+    if (myCreep.IsEmpty()) {
+        creep.say("Charge");
+        myCreep.SetAction("Charge");
+    }
+
     var targets = myCreep.Logistic.ActionTargets.Build;
     var oldTarget = _.find(targets, function(x) { 
         return x.target == myCreep.Mem().target; 

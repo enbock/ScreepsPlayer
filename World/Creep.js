@@ -62,14 +62,18 @@ function uuid() {
 };
 
 
-function Creep(logistic, name, parameters)
+function Creep(logistic, name, type, parameters)
 {
     this.Parameters = parameters;
     this.Name = name ? name : this.FindName();
     this.Logistic = logistic;
     this.Me = Game.creeps[this.Name];
+    this.Type = type;
     if (!this.Me) this.Create();
 }
+
+Creep.TYPE_WORKER = "worker";
+Creep.TYPE_MINER = "miner";
 
 Creep.prototype = Object.create(Object);
 module.exports = Creep.prototype.constructor = Creep;
@@ -92,7 +96,9 @@ Creep.prototype.Create = function() {
     } else {
         //console.log("Try to spawn", this.Name, this.Parameters);
         this.Logistic.Spawn.createCreep(
-            this.Parameters, this.Name
+            this.Parameters
+            , this.Name
+            , {type: this.Type, action: "None"}
         );
         this.Me = Game.creeps[this.Name];
     }

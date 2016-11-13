@@ -1,5 +1,11 @@
 module.exports = function(myCreep) {
     var creep = myCreep.Me;
+
+    if (myCreep.IsEmpty()) {
+        creep.say("Charge");
+        myCreep.SetAction("Charge");
+    }
+    
     var spawn = myCreep.Logistic.Spawn;
     if(spawn.energy >= spawn.energyCapacity) {
         creep.say("Done.");

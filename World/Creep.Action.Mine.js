@@ -1,13 +1,14 @@
 module.exports = function(myCreep) {
     var creep = myCreep.Me;
-    var targets = myCreep.Logistic.ActionTargets.Charge;
+    var targets = myCreep.Logistic.ActionTargets.Mine;
     var oldTarget = _.find(targets, function(x) { 
         return x.target == myCreep.Mem().target; 
     });
     var source = oldTarget ? Game.getObjectById(oldTarget.target) : null;
-    if(myCreep.IsFull() || (!source && !myCreep.IsEmpty())) {
-        if(myCreep.IsFull()) creep.say("Cargo full.");
-        myCreep.SetAction("None");
+    if(myCreep.IsFull()) {
+        for(var resourceType in creep.carry) {
+            creep.drop(resourceType);
+        }
         return;
     }
 
@@ -16,17 +17,13 @@ module.exports = function(myCreep) {
         source = Game.getObjectById( 
             helper.FindActionTarget(
                 targets, function(source) {
-                    return Game.getObjectById(source).amount > 0
+                    return Game.getObjectById(source).energy >= 50
                 }
             )
         );
     }
-    if (!source) {
-        creep.say("!@#");
-        return;
-    }
     myCreep.Mem().target = source.id;
-    if(creep.pickup(source) == ERR_NOT_IN_RANGE) {
+    if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
         myCreep.Move(source);
     }
 };
