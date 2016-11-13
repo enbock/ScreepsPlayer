@@ -22,7 +22,11 @@ Logistics.prototype.GetWorker = function() {
     var self = this;
     var workers = [];
     _.forEach(Game.creeps, function(creep) {
-        workers.push(new MyCreep(self, creep.name, creep.memory.type));
+        workers.push(new MyCreep(
+            self
+            , creep.name
+            , creep.memory.type ? creep.memory.type : MyCreep.TYPE_WORKER
+        ));
     });
     /*
     var diff = neededWorker - workers.length 
@@ -71,7 +75,6 @@ Logistics.prototype.Run = function(spawn) {
 
     var stopCreate = false;
     _.forEach(_.sortByOrder(stack, ['priority'], ['asc']), function(data) {
-        if(stopCreate) return;
         var action = data.action;
         console.log(_.map(data)); // debug orders
         for (var i = 0; i < data.need - data.has; i++) {
@@ -79,7 +82,6 @@ Logistics.prototype.Run = function(spawn) {
             if(creep) {
                 freeWorkers.splice(freeWorkers.indexOf(creep), 1);
             } else {
-
                 //console.log("Search for other prio", action);
                 var priority = _.filter(workers, function(x) {
                     return stack[x.GetAction()] && stack[x.GetAction()].priority > data.priority && x.Type == data.type;
@@ -87,7 +89,7 @@ Logistics.prototype.Run = function(spawn) {
                 //console.log("found", priority.length);
 
                 if (priority.length == 0) {
-                    if(maxWorkers < workers.length && data.type != MyCreep.TYPE_MINER) return; // limit creeps, but force miners
+                    if(stopCreate || (maxWorkers < workers.length && data.type != MyCreep.TYPE_MINER)) return; // limit creeps, but force miners
                     // create new one
                     creep = new MyCreep(self, null, data.type, self.SETUP[data.type][self.Extensions]);
                     stopCreate = true;
