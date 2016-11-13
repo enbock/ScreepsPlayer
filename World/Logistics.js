@@ -92,7 +92,7 @@ Logistics.prototype.Run = function(spawn) {
                     if(stopCreate || (maxWorkers < workers.length && data.type != MyCreep.TYPE_MINER)) return; // limit creeps, but force miners
                     // create new one
                     creep = new MyCreep(self, null, data.type, self.SETUP[data.type][self.Extensions]);
-                    stopCreate = true;
+                    stopCreate = maxWorkers <= 1;
                     return; // can't create more
                 }
                 creep = priority.pop();
