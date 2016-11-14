@@ -126,7 +126,9 @@ Logistics.prototype.UpdateTargets = function() {
         Charge: this.UpdateEnergy()
         , Build: this.UpdateBuildingTargets()
         , Mine: this.UpdateMines()
+        , LoadStructures: this.UpdateLoadableStructures()
     };
+    //console.log(JSON.stringify(this.ActionTargets.LoadStructures));
 }
 
 Logistics.prototype.UpdateEnergy = function() {
@@ -178,9 +180,8 @@ Logistics.prototype.UpdateMines = function() {
     return sources;
 }
 
-Logistics.prototype.UpdateBuildingTargets = function() {
+Logistics.prototype.SearchTargets = function(targets) {
     var data = [];
-    var targets = this.Spawn.room.find(FIND_CONSTRUCTION_SITES);
     targets.forEach(function(target) {
         var item = {
             target: target.id
@@ -193,6 +194,25 @@ Logistics.prototype.UpdateBuildingTargets = function() {
     });
 
     return data;
+}
+
+Logistics.prototype.UpdateBuildingTargets = function() {
+    return this.SearchTargets(this.Spawn.room.find(FIND_CONSTRUCTION_SITES));
+}
+
+Logistics.prototype.UpdateLoadableStructures = function() {
+    return this.SearchTargets(
+        this.Spawn.room.find(
+            FIND_STRUCTURES
+            , {filter: function(x) { 
+                return x.energy != undefined  
+                    && !(
+                        x instanceof StructureController
+                        || x instanceof StructureSpawn
+                    ) && x.energy < x.energyCapacity; 
+            }}
+        )
+    );
 }
 
 Logistics.prototype.SearchRequirements = function() {
@@ -245,6 +265,16 @@ Logistics.prototype.SearchRequirements = function() {
             , has: 0
             , priority: 0
             , type: MyCreep.TYPE_MINER
+        };
+    }
+
+    if (this.ActionTargets.LoadStructures.length > 0) {
+        stack["LoadStructure"] = {
+            action: "LoadStructure"
+            , need: this.ActionTargets.LoadStructures.length * 3
+            , has: 0
+            , priority: 20
+            , type: MyCreep.TYPE_WORKER
         };
     }
 

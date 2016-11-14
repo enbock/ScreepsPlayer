@@ -10,7 +10,7 @@ Plugin.prototype.Run = function(military)
     this.Room = military.Room;
 
     var enemies = military.Room.find(FIND_HOSTILE_CREEPS);
-    console.log("Found", enemies.length, "enemies.");
+    //console.log("Found", enemies.length, "enemies.");
 
     if(enemies.length > 0) {
         this.Towers(enemies);
@@ -20,7 +20,7 @@ Plugin.prototype.Run = function(military)
 Plugin.prototype.Towers = function(enemies)
 {
     var towers = this.Room.find(FIND_MY_STRUCTURES, {filter: function(x) { return x instanceof StructureTower; }});
-    console.log("Found", towers.length, "towers.");
+    //console.log("Found", towers.length, "towers.");
     towers.forEach(function(tower) {
         if(towers.length == 0) return;
         var target = enemies.shift();   
