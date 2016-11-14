@@ -108,7 +108,7 @@ Logistics.prototype.Run = function(spawn) {
 
     if (this.Plugins instanceof Array) {
         this.Plugins.forEach(function(plugin) {
-            plugin.Run(this);
+            plugin.Run(self);
         })
     }
 
@@ -218,7 +218,7 @@ Logistics.prototype.SearchRequirements = function() {
     if (this.Spawn.room.controller.level < 8) 
         stack["Fill.Controller"] = {
             action: "Fill.Controller"
-            , need: Math.ceil(8 - this.Spawn.room.controller.level) * 2
+            , need: Math.ceil(this.Spawn.room.controller.level) * 3
             , has: 0
             , priority: 10 * (this.Spawn.room.controller.level - 1) + 1 // reduce prio on high level
             , type: MyCreep.TYPE_WORKER

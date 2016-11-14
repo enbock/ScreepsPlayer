@@ -1,4 +1,5 @@
 module.exports = {
     Logistics: require("./Logistics"),
-    Creep: require("./Creep")
+    Creep: require("./Creep"),
+    Military: require("./Military")
 };

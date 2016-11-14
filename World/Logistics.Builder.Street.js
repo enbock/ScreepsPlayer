@@ -1,13 +1,13 @@
-function StreetBuilder(logistic) {
+function Builder() {
     Object.call(this);
 
-    this.BuildAfter = 60;
+    this.BuildAfter = 100;
     this.RemoveAfter = 900; // Remove a point x ticks later
 }
-StreetBuilder.prototype = Object.create(Object);
-module.exports = StreetBuilder.prototype.construction = StreetBuilder;
+Builder.prototype = Object.create(Object);
+module.exports = Builder.prototype.construction = Builder;
 
-StreetBuilder.prototype.Run = function(logistic) {
+Builder.prototype.Run = function(logistic) {
     var self = this;
     var memory = this.Mem(), date = (new Date).valueOf();
     var lastTick = memory.lastTick;
@@ -41,7 +41,7 @@ StreetBuilder.prototype.Run = function(logistic) {
     });
 };
 
-StreetBuilder.prototype.Mem = function() {
+Builder.prototype.Mem = function() {
     var memory = Memory.StreetBuilder;
     if (!memory) {
         memory = {};

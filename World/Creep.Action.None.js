@@ -1,5 +1,5 @@
 module.exports = function(myCreep) {
     var creep = myCreep.Me;
-    creep.say("zzzZZ");
+    if(Math.random() <= 0.4 && Math.random() >= 0.6) creep.say("zzZ");
     myCreep.Move(myCreep.Logistic.Spawn);
 };

@@ -17,11 +17,17 @@ module.exports = function(myCreep) {
         source = Game.getObjectById( 
             helper.FindActionTarget(
                 targets, function(source) {
-                    return Game.getObjectById(source).energy >= 50
+                    return true; //Game.getObjectById(source).energy >= 50
                 }
             )
         );
     }
+
+    if (!source) {
+        creep.say("???");
+        return;
+    }
+
     myCreep.Mem().target = source.id;
     if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
         myCreep.Move(source);
