@@ -1,7 +1,7 @@
 function Builder() {
     Object.call(this);
 
-    this.BuildAfter = 100;
+    this.BuildAfter = 150;
     this.RemoveAfter = 900; // Remove a point x ticks later
 }
 Builder.prototype = Object.create(Object);
