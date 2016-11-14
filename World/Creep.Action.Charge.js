@@ -23,7 +23,7 @@ module.exports = function(myCreep) {
     }
     if (!source) {
         //creep.say("!@#");
-        myCreep.Move(Math.round(Math.random()*7)+1);
+        creep.move(Math.round(Math.random()*7)+1);
         return;
     }
     myCreep.Mem().target = source.id;
