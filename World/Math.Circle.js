@@ -28,7 +28,7 @@ module.exports = function(pos, radius, step)
   var y = radius;
 
   var coords = [];
-  var cnt = 0;
+  var cnt = 1;
 
   coords.push([x0, y0 + radius]);
   coords.push([x0, y0 - radius]);
