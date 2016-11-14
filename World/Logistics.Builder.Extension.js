@@ -10,6 +10,7 @@ module.exports = Builder.prototype.construction = Builder;
 Builder.prototype.Run = function(logistic) {
     var buildings = logistic.Spawn.room.find(
         FIND_CONSTRUCTION_SITES
+        , {filter: function(x) { return x.structureType == STRUCTURE_EXTENSION; }}
     );
     //buildings.forEach(function(b) {b.remove()}); return; // clean
     if(buildings.length >= 2) return;
