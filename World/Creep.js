@@ -122,7 +122,21 @@ Creep.prototype.Run = function() {
 
 Creep.prototype.Move = function(target) {
     var result;
-    if((result = this.Me.moveTo(target)) == 0) {
+    //*/
+    if (this.Mem()._move && this.Mem()._move.path) {
+        result = this.Me.moveByPath(this.Mem()._move.path);
+        this.Mem().moveOpt++;
+        if (this.Mem().moveOpt > Math.random()*5) {
+            result = ERR_NOT_FOUND;
+            this.Mem().moveOpt = 0;
+        }
+        if (result != OK && result != ERR_TIRED) result = this.Me.moveTo(target);
+    } else result = this.Me.moveTo(target);
+    /*/
+    result = this.Me.moveTo(target);
+    //*/
+
+    if(result == OK) {
         this.Mem().moveTry = 0;
         this.Mem().target = target.id; // set only if success
     } else if(result == ERR_NO_PATH) {
