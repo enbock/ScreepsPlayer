@@ -249,7 +249,7 @@ Logistics.prototype.SearchRequirements = function() {
             action: "Build"
             , need: this.ActionTargets.Build.length * this.Spawn.room.controller.level
             , has: 0
-            , priority: 8
+            , priority: 10
             , type: MyCreep.TYPE_WORKER
         };
     }
@@ -273,7 +273,7 @@ Logistics.prototype.SearchRequirements = function() {
             action: "LoadStructure"
             , need: this.ActionTargets.LoadStructures.length * 3
             , has: 0
-            , priority: 20
+            , priority: 8
             , type: MyCreep.TYPE_WORKER
         };
     }
