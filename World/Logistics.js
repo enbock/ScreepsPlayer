@@ -238,7 +238,7 @@ Logistics.prototype.SearchRequirements = function() {
     if (this.Spawn.room.controller.level < 8) 
         stack["Fill.Controller"] = {
             action: "Fill.Controller"
-            , need: Math.ceil(this.Spawn.room.controller.level) * 3
+            , need: this.Spawn.room.controller.level * 3
             , has: 0
             , priority: 10 * (this.Spawn.room.controller.level - 1) + 1 // reduce prio on high level
             , type: MyCreep.TYPE_WORKER
@@ -247,7 +247,7 @@ Logistics.prototype.SearchRequirements = function() {
     if (this.ActionTargets.Build.length > 0) {
         stack["Build"] = {
             action: "Build"
-            , need: this.ActionTargets.Build.length * 2
+            , need: this.ActionTargets.Build.length * this.Spawn.room.controller.level
             , has: 0
             , priority: 8
             , type: MyCreep.TYPE_WORKER

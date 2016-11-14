@@ -8,6 +8,11 @@ module.exports = Builder.prototype.construction = Builder;
 
 
 Builder.prototype.Run = function(logistic) {
+    if (!Memory.Run) Memory.Run = {};
+    var last = Memory.Run.Builder * 1;
+    var now = (new Date).valueOf();
+    if(now - last < 10000) return;
+    Memory.Run.Builder = now;
     var buildings = logistic.Spawn.room.find(
         FIND_CONSTRUCTION_SITES
         , {filter: function(x) { return x.structureType == STRUCTURE_EXTENSION; }}
