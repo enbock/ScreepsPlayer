@@ -1,48 +1,60 @@
 var MyCreep = require("./Creep");
 
 function Logistics(plugins) {
-    this.Spawn;
+    this.Spawns;
+    this.Room;
     this.ActionTargets;
     this.Plugins = plugins;
+    this.Extensions;
+    this.ExtensionEnergy = 0;
+    this.AvgCarry = 50;
+    this.AvgMinerSpeed = 2;
 
     this.SETUP = {};
     this.SETUP[MyCreep.TYPE_WORKER] = [
-        [WORK, CARRY, CARRY, MOVE]
+        {e: 0, parts: [WORK, CARRY, CARRY, MOVE]}
+        , {e: 0, parts: [WORK, CARRY, CARRY, MOVE]}
+        , {e: 5, parts: [WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE]}
+        , {e: 10, parts: [WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]}
     ];
     this.SETUP[MyCreep.TYPE_MINER] = [
-        [WORK, WORK, CARRY, MOVE]
+        {e: 0, parts: [WORK, WORK, CARRY, MOVE]}
+        , {e: 0, parts: [WORK, WORK, CARRY, MOVE]}
+        , {e: 5, parts: [WORK, WORK, WORK, WORK, CARRY, MOVE]}
+        , {e: 10, parts: [WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE]}
     ];
-    this.Extensions = 0;
 }
 
 Logistics.prototype = Object.create(Object);
 module.exports = Logistics.prototype.constructor = Logistics;
 
-Logistics.prototype.GetWorker = function() {
+Logistics.prototype.GetWorkers = function() {
     var self = this;
     var workers = [];
+    var carry = 0;
+    var minerSpeed = 0;
+    var minerCount = 0;
     _.forEach(Game.creeps, function(creep) {
+        carry += creep.carryCapacity;
+        if (creep.memory.type == MyCreep.TYPE_MINER) {
+            minerCount++;
+            minerSpeed += _.countBy(creep.body, "type")[WORK] * 2;
+        }
         workers.push(new MyCreep(
             self
             , creep.name
             , creep.memory.type ? creep.memory.type : MyCreep.TYPE_WORKER
         ));
     });
-    /*
-    var diff = neededWorker - workers.length 
-    for(var i = 0; i < diff && workers.length < limit; i++) {
-        //console.log("Create new worker");
-        var newCreep = new MyCreep(self, null, [WORK, CARRY, MOVE, MOVE]);
-        if (!Game.creeps[newCreep.Name]) break; // can't create more
-        workers.push(newCreep);
-    }
-    */
+   this.AvgCarry = carry / workers.length;
+   this.AvgMinerSpeed = minerSpeed / minerCount;
 
     return workers;
 }
 
-Logistics.prototype.Run = function(spawn) {
-    this.RunTimeData(spawn);
+Logistics.prototype.Run = function(room) {
+    var self = this;
+    this.RunTimeData(room);
     var stack = this.SearchRequirements();
     var numWorker = 0, self = this;
     var hasPower = 0;
@@ -50,13 +62,23 @@ Logistics.prototype.Run = function(spawn) {
         numWorker += data.need;
     });
 
-    this.ActionTargets.Charge.forEach(function(drop) {
-        hasPower += Game.getObjectById(drop.target).amount;
+    _.forEach(this.ActionTargets.Charge, function(drop, i) {
+        if (!drop) return;
+        var obj = Game.getObjectById(drop.target);
+        if(obj) hasPower += obj.amount;
+        else self.ActionTargets.Charge.splice(i,1);
     });
-    var maxWorkers = Math.ceil(hasPower / 100.0); // TODO Use extension level.
-    //console.log("!>", hasPower, maxWorkers);
 
-    var workers = this.GetWorker(numWorker);
+    var workers = this.GetWorkers();
+    var maxWorkers = Math.ceil(hasPower / this.AvgCarry);
+    if(!maxWorkers) maxWorkers = 1;
+    var maxMiner = Math.floor((this.ActionTargets.Mine.length * 10) / this.AvgMinerSpeed);
+    if(maxMiner < this.ActionTargets.Mine.length) maxMiner = this.ActionTargets.Mine.length; 
+    if(!maxMiner) maxMiner = 1;
+    //console.log("!>", hasPower, maxWorkers, this.AvgCarry, "M", maxMiner, this.AvgMinerSpeed);
+
+    var creepTypes = _.countBy(Game.creeps, "memory.type");
+    //console.log("T>", JSON.stringify(creepTypes));
 
     var working = [];
     workers.forEach(function(creep) {
@@ -76,7 +98,7 @@ Logistics.prototype.Run = function(spawn) {
     var stopCreate = false;
     _.forEach(_.sortByOrder(stack, ['priority'], ['asc']), function(data) {
         var action = data.action;
-        console.log(_.map(data)); // debug orders
+        //console.log(_.map(data)); // debug orders
         for (var i = 0; i < data.need - data.has; i++) {
             var creep = _.find(freeWorkers, {Type: data.type});
             if(creep) {
@@ -89,10 +111,35 @@ Logistics.prototype.Run = function(spawn) {
                 //console.log("found", priority.length);
 
                 if (priority.length == 0) {
-                    if(stopCreate || (maxWorkers < workers.length && data.type != MyCreep.TYPE_MINER)) return; // limit creeps, but force miners
+                    if(stopCreate || (
+                            (data.type == MyCreep.TYPE_WORKER && workers.length >= maxWorkers) 
+                            || (
+                                data.type == MyCreep.TYPE_MINER
+                                && (
+                                    creepTypes[MyCreep.TYPE_MINER] >= maxMiner 
+                                    || creepTypes[MyCreep.TYPE_WORKER] <= creepTypes[MyCreep.TYPE_MINER]
+                                )
+                            )
+                        )
+                    ) return; // limit creeps, but force miners
                     // create new one
-                    creep = new MyCreep(self, null, data.type, self.SETUP[data.type][self.Extensions]);
-                    stopCreate = maxWorkers <= 1;
+                    var parts = null;
+                    if (!self.Extensions.length) {
+                        parts = self.SETUP[data.type][1].parts;
+                    } else {
+                        for(var i = self.Extensions.length - 1; i >= 0 && parts == null; i--) {
+                            var bp = self.SETUP[data.type][i];
+                            if(bp && (
+                                (bp.e <= self.Extensions.length && _.countBy(Game.creeps, function() { return "count";}).count > 1)
+                                || bp.e == 0
+                            )) {
+                                parts = bp.parts;
+                            }
+                        }
+                    }
+                    //console.log("CRE", data.type, JSON.stringify(parts));
+                    creep = new MyCreep(self, null, data.type, parts);
+                    stopCreate = true;
                     return; // can't create more
                 }
                 creep = priority.pop();
@@ -115,26 +162,47 @@ Logistics.prototype.Run = function(spawn) {
     //console.log("targets:", JSON.stringify(this.ActionTargets));
 }
 
-Logistics.prototype.RunTimeData = function(spawn) {
-    this.Spawn = spawn;
+Logistics.prototype.RunTimeData = function(room) {
+    this.Room = room;
+    this.Spawns = this.Room.find(FIND_MY_SPAWNS);
 
+    this.UpdateExtensions();
     this.UpdateTargets();
 }
 
+Logistics.prototype.UpdateExtensions = function() {
+    var self = this;
+    this.Extensions = this.Room.find(
+        FIND_MY_STRUCTURES, {
+            filter: function(s) { return s instanceof StructureExtension; }
+        }
+    );
+    this.ExtensionEnergy = 0;
+    _.forEach(this.Extensions, function(extension) {
+        self.ExtensionEnergy += extension.energy;
+    });
+}
+
 Logistics.prototype.UpdateTargets = function() {
-    this.ActionTargets = {
-        Charge: this.UpdateEnergy()
-        , Build: this.UpdateBuildingTargets()
-        , Mine: this.UpdateMines()
-        , LoadStructures: this.UpdateLoadableStructures()
-    };
-    //console.log(JSON.stringify(this.ActionTargets.LoadStructures));
+    var mem;
+    this.ActionTargets = mem = this.Mem().ActionTargets;
+    if (!mem || this.Mem().Cycle > 2) {
+        this.Mem().Cycle = 0;
+        mem = {
+            Charge: this.UpdateEnergy()
+            , Build: this.UpdateBuildingTargets()
+            , Mine: this.UpdateMines()
+            , StructureEnergy: this.UpdateLoadableStructures()
+        };
+        this.ActionTargets = this.Mem().ActionTargets = mem;
+    }
+    this.Mem().Cycle++;
 }
 
 Logistics.prototype.UpdateEnergy = function() {
     var drops = [];
 
-    _.forEach(this.Spawn.room.find(
+    _.forEach(this.Room.find(
         FIND_DROPPED_RESOURCES
         , {filter: {resourceType: RESOURCE_ENERGY}}
     ), function(resource) {
@@ -154,7 +222,7 @@ Logistics.prototype.UpdateEnergy = function() {
 Logistics.prototype.UpdateMines = function() {
     var sources = [], self = this;
 
-    _.forEach(this.Spawn.room.find(FIND_SOURCES), function(source) {
+    _.forEach(this.Room.find(FIND_SOURCES), function(source) {
         var item = {
             target: source.id
             , creeps: 0
@@ -165,7 +233,7 @@ Logistics.prototype.UpdateMines = function() {
         for(var x = -1; x <= 1; x++) {
             for (var y = -1; y <= 1; y++) {
                 if (x == 0 && y == 0) continue;
-                var terrain = self.Spawn.room.lookForAt(LOOK_TERRAIN, rx + x, ry + y);
+                var terrain = self.Room.lookForAt(LOOK_TERRAIN, rx + x, ry + y);
                 if(terrain == "plain") {
                     item.max++;
                 }
@@ -197,12 +265,12 @@ Logistics.prototype.SearchTargets = function(targets) {
 }
 
 Logistics.prototype.UpdateBuildingTargets = function() {
-    return this.SearchTargets(this.Spawn.room.find(FIND_CONSTRUCTION_SITES));
+    return this.SearchTargets(this.Room.find(FIND_CONSTRUCTION_SITES));
 }
 
 Logistics.prototype.UpdateLoadableStructures = function() {
     return this.SearchTargets(
-        this.Spawn.room.find(
+        this.Room.find(
             FIND_STRUCTURES
             , {filter: function(x) { 
                 return x.energy != undefined  
@@ -216,6 +284,7 @@ Logistics.prototype.UpdateLoadableStructures = function() {
 }
 
 Logistics.prototype.SearchRequirements = function() {
+    var self = this;
     var stack = {
         Charge: {
             action: "Charge"
@@ -225,29 +294,36 @@ Logistics.prototype.SearchRequirements = function() {
             , type: MyCreep.TYPE_WORKER
         } // default action if creep empty
     };
-    if (this.Spawn.energy < this.Spawn.energyCapacity) {
-        stack["Fill.Spawn"] = {
-            action: "Fill.Spawn"
-            , need: Math.ceil((this.Spawn.energyCapacity-this.Spawn.energy) / 50)
-            , has: 0
-            , priority: 5
-            , type: MyCreep.TYPE_WORKER
+
+    var spawnEnergy = {
+        action: "Fill.Spawn"
+        , need: 0
+        , has: 0
+        , priority: 5
+        , type: MyCreep.TYPE_WORKER
+    }
+    _.forEach(this.Spawns, function(spawn){
+        if (spawn.energy < spawn.energyCapacity) {
+            spawnEnergy.need += Math.ceil((spawn.energyCapacity-spawn.energy) / 50)
         }
+    });
+    if(spawnEnergy.need > 0) {
+        stack["Fill.Spawn"] = spawnEnergy;
     }
 
-    if (this.Spawn.room.controller.level < 8) 
+    if (this.Room.controller.level < 8) 
         stack["Fill.Controller"] = {
             action: "Fill.Controller"
-            , need: this.Spawn.room.controller.level * 3
+            , need: this.Room.controller.level * 3
             , has: 0
-            , priority: 10 * (this.Spawn.room.controller.level - 1) + 1 // reduce prio on high level
+            , priority: 10 * (this.Room.controller.level - 1) + 1 // reduce prio on high level
             , type: MyCreep.TYPE_WORKER
         };
 
     if (this.ActionTargets.Build.length > 0) {
         stack["Build"] = {
             action: "Build"
-            , need: this.ActionTargets.Build.length * this.Spawn.room.controller.level * 2
+            , need: this.ActionTargets.Build.length * this.Room.controller.level * 2
             , has: 0
             , priority: 10
             , type: MyCreep.TYPE_WORKER
@@ -268,10 +344,10 @@ Logistics.prototype.SearchRequirements = function() {
         };
     }
 
-    if (this.ActionTargets.LoadStructures.length > 0) {
-        stack["LoadStructure"] = {
-            action: "LoadStructure"
-            , need: this.ActionTargets.LoadStructures.length * 3
+    if (this.ActionTargets.StructureEnergy.length > 0) {
+        stack["Fill.Structure"] = {
+            action: "Fill.Structure"
+            , need: this.ActionTargets.StructureEnergy.length * 2
             , has: 0
             , priority: 8
             , type: MyCreep.TYPE_WORKER
@@ -279,4 +355,13 @@ Logistics.prototype.SearchRequirements = function() {
     }
 
     return stack;
+}
+
+Logistics.prototype.Mem = function() {
+    var mem = Memory.Logistics;
+    if (!mem) {
+        mem = {};
+        Memory.Logistics = mem;
+    }
+    return mem;
 }

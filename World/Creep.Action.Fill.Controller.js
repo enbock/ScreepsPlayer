@@ -6,7 +6,7 @@ module.exports = function(myCreep) {
         myCreep.SetAction("Charge");
     }
     
-    var controller = myCreep.Logistic.Spawn.room.controller;
+    var controller = myCreep.Logistic.Room.controller;
     creep.upgradeController(controller);
      myCreep.Move(controller);
 };

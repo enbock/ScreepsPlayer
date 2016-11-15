@@ -93,14 +93,26 @@ Creep.prototype.IsIdle = function() {
 Creep.prototype.Create = function() {
     if (Game.creeps[this.Name]) {
         this.Me = Game.creeps[this.Name];
+        return OK;
     } else {
-        //console.log("Try to spawn", this.Name, this.Parameters);
-        this.Logistic.Spawn.createCreep(
-            this.Parameters
-            , this.Name
-            , {type: this.Type, action: "None"}
-        );
-        this.Me = Game.creeps[this.Name];
+        var costs = 0;
+        _.forEach(this.Parameters, function(part) {
+            costs += BODYPART_COST[part];
+        });
+        for(var i = 0; i < this.Logistic.Spawns.length; i++) {
+            var spawn = this.Logistic.Spawns[i];
+            if (spawn.energy + this.Logistic.ExtensionEnergy >= costs) {
+                //console.log("Try to spawn", this.Name, this.Parameters, costs, spawn);
+                spawn.createCreep(
+                    this.Parameters
+                    , this.Name
+                    , {type: this.Type, action: "None"}
+                );
+                this.Me = Game.creeps[this.Name];
+                return OK;
+            } 
+        }
+        return ERR_NOT_ENOUGH_ENERGY;
     }
 }
 
@@ -122,19 +134,22 @@ Creep.prototype.Run = function() {
 
 Creep.prototype.Move = function(target) {
     var result;
-    //*/
-    if (this.Mem()._move && this.Mem()._move.path) {
+    var oldPos = this.Mem().pos;
+    this.Mem().pos = {x: this.Me.pos.x, y: this.Me.pos.y, fat: this.Me.fatigue};
+    var moved = this.Mem().target && oldPos && oldPos.fat != 0;
+    if(oldPos && oldPos.fat == 0) {
+        moved = (oldPos.x != this.Me.pos.x || oldPos.y != this.Me.pos.y);
+    }
+    if (this.Mem().target == target.id && moved && this.Mem()._move && this.Mem()._move.path && this.Mem()._move.path.length > 0) {
         result = this.Me.moveByPath(this.Mem()._move.path);
-        this.Mem().moveOpt++;
-        if (this.Mem().moveOpt > Math.random()*5) {
-            result = ERR_NOT_FOUND;
-            this.Mem().moveOpt = 0;
+        if(result == OK) {
         }
-        if (result != OK && result != ERR_TIRED) result = this.Me.moveTo(target);
-    } else result = this.Me.moveTo(target);
-    /*/
-    result = this.Me.moveTo(target);
-    //*/
+        if (result != OK && result != ERR_TIRED) {
+            result = this.Me.moveTo(target);
+        }
+    } else {
+        result = this.Me.moveTo(target);
+    }
 
     if(result == OK) {
         this.Mem().moveTry = 0;
@@ -156,6 +171,8 @@ Creep.prototype.Move = function(target) {
 Creep.prototype.SetAction = function(action) {
     this.Mem().action = action;
     delete(this.Mem().target);
+    delete(this.Mem().pos);
+    this.Move(this.Me);
 }
 
 Creep.prototype.GetAction = function() {

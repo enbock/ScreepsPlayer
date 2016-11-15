@@ -5,21 +5,26 @@ module.exports = function(myCreep) {
         creep.say("Charge");
         myCreep.SetAction("Charge");
     }
-    
-    var spawn = myCreep.Logistic.Spawn;
-    if(spawn.energy >= spawn.energyCapacity) {
-        creep.say("Done.");
-        myCreep.SetAction("None");
-        return;
+
+    var targets = myCreep.Logistic.Spawns;
+    var spawn = _.find(targets, function(x) { 
+        return x.id == myCreep.Mem().target; 
+    });
+
+    if(! spawn) {
+        spawn = _.find(
+            targets, function(s) {
+                return s.energy < s.energyCapacity;
+            }
+        );
     }
 
-    /*
-    var targets = creep.room.find(FIND_STRUCTURES, {
-            filter: (structure) => {
-                return structure.structureType == STRUCTURE_SPAWN;
-            }
-    });
-    */
+    if(!spawn || spawn.energy >= spawn.energyCapacity) {
+        creep.say("Done.");
+        myCreep.SetAction("None");
+        delete(myCreep.Mem().target);
+        return;
+    }
 
     if(creep.transfer(spawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
         myCreep.Move(spawn);

@@ -9,7 +9,7 @@ module.exports = function(myCreep) {
         myCreep.SetAction("Charge");
     }
 
-    var targets = myCreep.Logistic.ActionTargets.LoadStructures;
+    var targets = myCreep.Logistic.ActionTargets.StructureEnergy;
     var oldTarget = _.find(targets, function(x) { 
         return x.target == myCreep.Mem().target; 
     });
