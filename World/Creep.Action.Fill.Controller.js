@@ -7,6 +7,8 @@ module.exports = function(myCreep) {
     }
     
     var controller = myCreep.Logistic.Room.controller;
-    creep.upgradeController(controller);
-     myCreep.Move(controller);
+    var result = creep.upgradeController(controller);
+    if(result == ERR_NOT_IN_RANGE || result == OK) {
+        myCreep.Move(controller);
+    }
 };

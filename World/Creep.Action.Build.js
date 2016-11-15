@@ -36,6 +36,8 @@ module.exports = function(myCreep) {
     };
 
     myCreep.Mem().target = target.id;
-    creep.build(target);
-    myCreep.Move(target);
+    var result = creep.build(target);
+    if(result == ERR_NOT_IN_RANGE || result == OK) {
+        myCreep.Move(target);
+    }
 };
