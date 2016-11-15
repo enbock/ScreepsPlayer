@@ -247,7 +247,7 @@ Logistics.prototype.SearchRequirements = function() {
     if (this.ActionTargets.Build.length > 0) {
         stack["Build"] = {
             action: "Build"
-            , need: this.ActionTargets.Build.length * this.Spawn.room.controller.level
+            , need: this.ActionTargets.Build.length * this.Spawn.room.controller.level * 2
             , has: 0
             , priority: 10
             , type: MyCreep.TYPE_WORKER
