@@ -44,7 +44,12 @@ Container.prototype.get = function(name) {
             if(argument.indexOf("$") === 0) {
                 cfg.arguments[i] = (new Function(
                     "return Memory." + argument.replace("$", "") + ";"
-                )).call(use.context);
+                )).call(this);
+            }
+            if(argument.indexOf("#") === 0) {
+                cfg.arguments[i] = (new Function(
+                    "return " + argument.replace("#", "") + ";"
+                )).call(this);
             }
         }
     }
