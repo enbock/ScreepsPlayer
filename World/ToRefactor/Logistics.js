@@ -72,7 +72,7 @@ Logistics.prototype.Run = function(room) {
     var workers = this.GetWorkers();
     var maxWorkers = Math.ceil(hasPower / this.AvgCarry);
     if(!maxWorkers) maxWorkers = 1;
-    var maxMiner = Math.floor((this.ActionTargets.Mine.length * 10) / this.AvgMinerSpeed);
+    var maxMiner = Math.ceil((this.ActionTargets.Mine.length * 10) / this.AvgMinerSpeed);
     if(maxMiner < this.ActionTargets.Mine.length) maxMiner = this.ActionTargets.Mine.length; 
     if(!maxMiner) maxMiner = 1;
     //console.log("!>", hasPower, maxWorkers, this.AvgCarry, "M", maxMiner, this.AvgMinerSpeed);
@@ -104,6 +104,11 @@ Logistics.prototype.Run = function(room) {
             if(creep) {
                 freeWorkers.splice(freeWorkers.indexOf(creep), 1);
             } else {
+                if (creepTypes[MyCreep.TYPE_WORKER] == undefined) {
+                    creep = new MyCreep(self, null, MyCreep.TYPE_WORKER, self.SETUP[MyCreep.TYPE_WORKER][1].parts);
+                    workers.push(creep);
+                    return;
+                }
                 //console.log("Search for other prio", action);
                 var priority = _.filter(workers, function(x) {
                     return stack[x.GetAction()] && stack[x.GetAction()].priority > data.priority && x.Type == data.type;
