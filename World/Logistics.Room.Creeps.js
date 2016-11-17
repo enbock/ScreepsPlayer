@@ -1,20 +1,21 @@
-var GameTick = require("./Logic.GameTick");
 var MyCreep = require("./Creep");
 
 /**
  * Creeps in the room.
  */
-module.exports = class Creeps extends GameTick {
+module.exports = class Creeps extends require("./Logic.GameTick") {
     /**
      * Create creep list.
      * 
      * @param {Data.Global} game The global game object.
      * @param {Data.Global} room The global current room.
+     * @param {Creep.Creator} creepCreator The creep factory.
      */
-    constructor(game, room)
+    constructor(game, room, creepCreator)
     {
         super(game);
         this._room = room;
+        this.creepCreator = creepCreator;
     }
 
     /**
@@ -24,24 +25,26 @@ module.exports = class Creeps extends GameTick {
     {
         this._types =  undefined;
         this._list = undefined;
+        this._amount = undefined;
     }
 
     /**
      * Search for creeps.
      * 
-     * @return {Creep[]}
+     * @return {Object<String:Creep>}
      */
     get creeps()
     {
         this.resetOnTick();
         if (this._list === undefined) {
+            var creeps = _.filter(
+                this.game.creeps
+                , creep => creep.memory.homeRoom = this._room.get().name
+            );
             this._list = {}
-            for(var creep in _.filter(
-                    this.game.creeps
-                    , creep => creep.memory.homeRoom = this._room.get().name
-                ).entries()
-            ) {
-                this._list[creep.name] = new MyCreep(creep);
+            this._amount = creeps.length;
+            for(let creep of creeps.entries()) {
+                this._list[creep[1].name] = this.creepCreator.factory(creep[1]);
             }
         }
 
@@ -50,6 +53,8 @@ module.exports = class Creeps extends GameTick {
 
     /**
      * Get types of the creeps.
+     * 
+     * @returns {Object<String:int>} Type and count map. 
      */
     get types()
     {
@@ -58,5 +63,16 @@ module.exports = class Creeps extends GameTick {
             this._types = _.countBy(this.creeps, "$.memory.type");
         }
         return this._types;
+    }
+
+    /**
+     * Amount of creeps in the room.
+     * 
+     * @returns {int}
+     */
+    get amount()
+    {
+        this.creeps; // refresh cache if needed
+        return this._amount;
     }
 }

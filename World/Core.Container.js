@@ -32,26 +32,7 @@ module.exports = class Container {
             cfg.arguments = [];
         }
 
-        for(i in cfg.arguments) {
-            var argument = cfg.arguments[i];
-            if (
-                (typeof argument === "string" || argument instanceof String)
-            ) {
-                if(argument.indexOf("@") === 0) {
-                    cfg.arguments[i] = this.get(argument.replace("@", ""));
-                }
-                if(argument.indexOf("$") === 0) {
-                    cfg.arguments[i] = (new Function(
-                        "return Memory." + argument.replace("$", "") + ";"
-                    )).call(this);
-                }
-                if(argument.indexOf("#") === 0) {
-                    cfg.arguments[i] = (new Function(
-                        "return " + argument.replace("#", "") + ";"
-                    )).call(this);
-                }
-            }
-        }
+        cfg.arguments = this.map(cfg.arguments);
 
         // Find class object.
         var classObject = require("./" + cfg.class);
@@ -64,6 +45,34 @@ module.exports = class Container {
 
         return service;
     };
+
+    map(argument)
+    {
+        if (
+            (typeof argument === "string" || argument instanceof String)
+        ) {
+            if(argument.indexOf("@") === 0) {
+                return this.get(argument.replace("@", ""));
+            }
+            if(argument.indexOf("$") === 0) {
+                return (new Function(
+                    "return Memory." + argument.replace("$", "") + ";"
+                )).call(this);
+            }
+            if(argument.indexOf("#") === 0) {
+                return (new Function(
+                    "return " + argument.replace("#", "") + ";"
+                )).call(this);
+            }
+        } else if (argument instanceof Array) {
+            for(var i = 0; i < argument.length; i++) {
+                argument[i] = this.map(argument[i]);
+            }
+            return argument;
+        }
+
+        return argument;
+    }
 
     /**
      * Set an external instance to container.

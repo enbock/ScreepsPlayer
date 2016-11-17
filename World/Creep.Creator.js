@@ -65,13 +65,14 @@ function uuid() {
         s4() + '-' + s4() + s4() + s4();
 };
 
+var MyCreep = require("./Creep");
+
 /**
- * A creep factory.
+ * A creep builder.
  */
 module.exports = class Creator {
-
     /**
-     * A creep factory.
+     * Create the builder.
      * 
      * @param {Data.Global} memory Global memory access.
      * @param {Data.Global} game Global game access.
@@ -80,12 +81,22 @@ module.exports = class Creator {
     {
         Object.call(this);
 
-        this.memory = memory;
-        this.game = game;
+        this._memory = memory;
+        this._game = game;
     }
 
     /**
-     * Create a creep.
+     * Create creep data obejct from game creep.
+     * 
+     * @param {Creep} creep The game creep object.
+     */
+    factory(creep)
+    {
+        return new MyCreep(this._game.get(), creep);
+    }
+
+    /**
+     * Spawn a creep.
      * 
      * @param {Spawn} spawn Native spawn object.
      * @param {String[]} setup List of body parts.
@@ -93,7 +104,7 @@ module.exports = class Creator {
      * 
      * @returns {int} Status code.
      */
-    create(spawn, setup, type)
+    spawn(spawn, setup, type)
     {
         var name = this.findName();
 
@@ -128,8 +139,8 @@ module.exports = class Creator {
      * @returns {String|NULL}
      */
     findName() {
-        for(var name in this.memory.get().creeps) {
-            if(! this.game.get().creeps[name]) return name;
+        for(var name in this._memory.get().creeps) {
+            if(! this._game.get().creeps[name]) return name;
         }
         //*/
         return null; // use build in generator

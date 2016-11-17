@@ -4,16 +4,21 @@
  * This program part handles the logistic activities of the world.
  * It controlles a room.
  */
-module.exports = class Logistics extends require("./Logic.GameTick") {
+module.exports = class Logistics /*extends require("./Logic.GameTick")*/ {
     /**
      * Create logistic.
      * 
+     * @param {Data.Global} game The global game object.
      * @param {Data.Global} room The current room.
+     * @param {Logistics.Action.Abstract[]} actionChain List of action to do.
+     * @param {Logistics.Room.Population} population Room population logistic.
      */
-    constructor(game, room)
+    constructor(game, room, actionChain, population)
     {
-        super(game);
+        //super(game);
         this._room = room;
+        this._actionChain = actionChain;
+        this._population = population;
     }
 
     /**
@@ -21,7 +26,15 @@ module.exports = class Logistics extends require("./Logic.GameTick") {
      */
     run()
     {
-        this.resetOnTick();
+        //this.resetOnTick();
+
+        var actions = _.sortBy(this._actionChain, unit => unit.priority);
+        actions.reverse();
+
+        // create required creeps
+        for(let unit of actions.entries()) {
+            if(this._population.create(unit[1])) break;
+        }
     }
 
     /**
@@ -29,21 +42,5 @@ module.exports = class Logistics extends require("./Logic.GameTick") {
      */
     reset() 
     {
-        // spans in room
-        this._spawns = undefined;
-    }
-
-    /**
-     * Get spawns in room.
-     * 
-     * @return Spawn[]
-     */
-    get spawns()
-    {
-        this.resetOnTick();
-        if (this._spawns === undefined) {
-            this._spawns = this._room.get().find(FIND_MY_SPAWNS);
-        }
-        return this._spawns;
     }
 }
