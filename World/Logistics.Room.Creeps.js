@@ -9,7 +9,7 @@ module.exports = class Creeps extends GameTick {
      */
     reset()
     {
-        
+        this.creeps = this.game.creeps;
     }
 
     /**
@@ -17,6 +17,6 @@ module.exports = class Creeps extends GameTick {
      */
     getList()
     {
-        
+        return this.game.creeps;
     }
 }

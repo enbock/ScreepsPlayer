@@ -13,7 +13,7 @@ module.exports = class GameTick {
         this.lastTick = 0;
 
         // Game accessor.
-        this.game = game;
+        this.gameData = game;
     }
 
     /**
@@ -23,7 +23,7 @@ module.exports = class GameTick {
     {
         var result, now;
 
-        now = this.game.get().time;
+        now = this.gameData.get().time;
         result = now != this.lastTick;
         this.lastTick = now;
 
@@ -36,5 +36,11 @@ module.exports = class GameTick {
     resetOnTick()
     {
         if(this.isTick()) this.reset();
+    }
+
+    get game()
+    {
+        this.resetOnTick()
+        return this.gameData.get();
     }
 }
