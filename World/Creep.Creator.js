@@ -67,70 +67,74 @@ function uuid() {
 
 /**
  * A creep factory.
- * 
- * @param {Data.Global} memory Global memory access.
- * @param {Data.Global} game Global game access.
  */
-function Creator(memory, game)
-{
-    Object.call(this);
+module.exports = class Creator {
 
-    this.memory = memory;
-    this.game = game;
-}
-Creator.prototype = Object.create(Object.prototype);
-module.exports = Creator.prototype.constructor = Creator;
+    /**
+     * A creep factory.
+     * 
+     * @param {Data.Global} memory Global memory access.
+     * @param {Data.Global} game Global game access.
+     */
+    constructor(memory, game)
+    {
+        Object.call(this);
 
-/**
- * Create a creep.
- * 
- * @param {Spawn} spawn Native spawn object.
- * @param {String[]} setup List of body parts.
- * @param {String} type Type of creep.
- * 
- * @returns {int} Status code.
- */
-Creator.prototype.create = function(spawn, setup, type)
-{
-    var name = this.findName();
+        this.memory = memory;
+        this.game = game;
+    }
 
-    // checking for costs
-    var checkResult = spawn.canCreateCreep(
-        setup, name
-    );
-    if (checkResult != OK) return checkResult;
+    /**
+     * Create a creep.
+     * 
+     * @param {Spawn} spawn Native spawn object.
+     * @param {String[]} setup List of body parts.
+     * @param {String} type Type of creep.
+     * 
+     * @returns {int} Status code.
+     */
+    create(spawn, setup, type)
+    {
+        var name = this.findName();
 
-    var creepName = spawn.createCreep(
-        setup
-        , name
-        , {
-            type: type
-            , homeRoom: spawn.room.name
-            , action: "None"
+        // checking for costs
+        var checkResult = spawn.canCreateCreep(
+            setup, name
+        );
+        if (checkResult != OK) return checkResult;
+
+        var creepName = spawn.createCreep(
+            setup
+            , name
+            , {
+                type: type
+                , homeRoom: spawn.room.name
+                , action: "None"
+            }
+        )
+
+        if(!_.isString(creepName)) {
+            return creepName;
         }
-    )
 
-    if(!_.isString(creepName)) {
-        return creepName;
+        return OK;
     }
 
-    return OK;
-}
-
-/**
- * Create a name.
- * 
- * Reuse a name from dead creeps to save memory size.
- * 
- * @returns {String|NULL}
- */
-Creator.prototype.findName = function() {
-    for(var name in this.memory.get().creeps) {
-        if(! this.game.get().creeps[name]) return name;
+    /**
+     * Create a name.
+     * 
+     * Reuse a name from dead creeps to save memory size.
+     * 
+     * @returns {String|NULL}
+     */
+    findName() {
+        for(var name in this.memory.get().creeps) {
+            if(! this.game.get().creeps[name]) return name;
+        }
+        //*/
+        return null; // use build in generator
+        /*/
+        return NAMES[Math.floor((NAMES.length - 1) * Math.random())] + " " + uuid();
+        //*/
     }
-    //*/
-    return null; // use build in generator
-    /*/
-    return NAMES[Math.floor((NAMES.length - 1) * Math.random())] + " " + uuid();
-    //*/
 }
