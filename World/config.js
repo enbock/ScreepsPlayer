@@ -16,15 +16,15 @@ module.exports = {
         module_logistics: {
             class: "Logistics",
             arguments: [
-                "@data_room",
-                "@creep_creator",
-                "@module_logistics_creeps"
+                "@data_game",
+                "@data_room"
             ]
         },
         module_logistics_creeps: {
             class: "Logistics.Room.Creeps",
             arguments: [
-                "@data_game"
+                "@data_game",
+                "@data_room"
             ]
         },
 

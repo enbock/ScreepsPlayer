@@ -4,19 +4,16 @@
  * This program part handles the logistic activities of the world.
  * It controlles a room.
  */
-module.exports = class Logistics {
+module.exports = class Logistics extends require("./Logic.GameTick") {
     /**
      * Create logistic.
      * 
      * @param {Data.Global} room The current room.
-     * @param {Creep.Creator} creepCreator The creep factory.
-     * @param {Logistics.Room.Creeps} creepList The list of creeps in room.
      */
-    constructor(room, creepCreator, creepList)
+    constructor(game, room)
     {
-        this.room = room;
-        this.creepCreator = creepCreator;
-        this.creepList = creepList;
+        super(game);
+        this._room = room;
     }
 
     /**
@@ -24,8 +21,7 @@ module.exports = class Logistics {
      */
     run()
     {
-        this.reset();
-        console.log(JSON.stringify(this.creepList.getList()));
+        this.resetOnTick();
     }
 
     /**
@@ -34,7 +30,7 @@ module.exports = class Logistics {
     reset() 
     {
         // spans in room
-        this.spawns = undefined;
+        this._spawns = undefined;
     }
 
     /**
@@ -42,11 +38,12 @@ module.exports = class Logistics {
      * 
      * @return Spawn[]
      */
-    getSpawns()
+    get spawns()
     {
-        if (this.spawns === undefined) {
-            this.spawns = this.room.get().find(FIND_MY_SPAWNS);
+        this.resetOnTick();
+        if (this._spawns === undefined) {
+            this._spawns = this._room.get().find(FIND_MY_SPAWNS);
         }
-        return spawns;
+        return this._spawns;
     }
 }

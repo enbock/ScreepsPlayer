@@ -14,7 +14,7 @@ module.exports = class GlobalData {
      */
     reset(data)
     {
-        this.data = data;
+        this._data = data;
         return this;
     }
 
@@ -29,6 +29,6 @@ module.exports = class GlobalData {
      */
     get()
     {
-        return this.data;
+        return this._data;
     }
 }
