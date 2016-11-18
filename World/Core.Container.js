@@ -11,6 +11,7 @@ module.exports = class Container {
     {
         this.config   = config;
         this.services = {};
+        this.parameters = {};
     }
 
     /**
@@ -64,6 +65,9 @@ module.exports = class Container {
                     "return " + argument.replace("#", "") + ";"
                 )).call(this);
             }
+            if(argument.indexOf("%") === 0) {
+                return this.getParameter(argument.replace("%", ""));
+            }
         } else if (argument instanceof Array) {
             for(var i = 0; i < argument.length; i++) {
                 argument[i] = this.map(argument[i]);
@@ -82,5 +86,28 @@ module.exports = class Container {
      */
     set(name, instance) {
         this.services[name] = instance;
+    };
+
+    /**
+     * Get a parameter
+     *
+     * @param {String} name The parameter name.
+     *
+     * @return {*} The parameter content.
+     */
+    getParameter(name) {
+        var i;
+        
+        if (this.parameters[name]) {
+            return this.parameters[name];
+        }
+        var cfg = this.config.parameters[name];
+
+        cfg = this.map(cfg);
+
+        // buffer the service
+        this.parameters[name] = cfg;
+
+        return cfg;
     };
 }

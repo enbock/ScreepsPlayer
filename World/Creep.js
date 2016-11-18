@@ -12,8 +12,6 @@ class Creep {
      */
     constructor(game, creep)
     {
-        Object.call(this);
-
         // game creep object.
         this.$ = creep;
         this._game = game;
@@ -49,7 +47,7 @@ class Creep {
     }
 }
 
-Creep.TYPE_WORKER = "worker";
+Creep.TYPE_ENERGY = "energy";
 Creep.TYPE_MINER = "miner";
 
 module.exports = Creep;

@@ -120,7 +120,7 @@ module.exports = class Creator {
             , {
                 type: type
                 , homeRoom: spawn.room.name
-                , action: "None"
+                , action: "Action.None"
             }
         )
 

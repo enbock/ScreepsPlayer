@@ -1,4 +1,14 @@
 module.exports = {
+    parameters: {
+        action_chain:  [
+            "@module_logistics_action_minimum"
+            , "@module_logistics_action_mine"
+        ],
+        action_to_worker: {
+            ["Action.Mine"]: "miner"
+            , ["Action.Energy"]: "worker"
+        }
+    },
     services: {
         /**
          * Application
@@ -18,11 +28,9 @@ module.exports = {
             arguments: [
                 "@data_game",
                 "@data_room",
-                [
-                    "@module_logistics_action_minimum"
-                    , "@module_logistics_action_mine"
-                ],
-                "@module_logistics_population"
+                "%action_chain",
+                "@module_logistics_population",
+                "@module_logistics_handler_action"
             ]
         },
         module_logistics_room_creeps: {
@@ -47,12 +55,20 @@ module.exports = {
                     miner: {
                         1: [MOVE, CARRY, WORK, WORK]
                     },
-                    worker: {
+                    energy: {
                         1: [MOVE, CARRY, CARRY, WORK]
                     }
                 },
                 "@creep_creator",
                 "@module_logistics_spawns"
+            ]
+        },
+        module_logistics_handler_action: {
+            class: "Logistics.Handler.Action",
+            arguments: [
+                "%action_chain",
+                "@module_logistics_room_creeps",
+                "%action_to_worker"
             ]
         },
 

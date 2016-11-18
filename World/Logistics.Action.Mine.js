@@ -25,13 +25,12 @@ module.exports = class Mine extends require("./Logistics.Action.Abstract") {
         super.reset();
         this._action = false; // do nothing.
 
-        var miners = this._roomCreeps.types[Creep.TYPE_MINER];
         var need = 0;
         _.forEach(this.sources, source => {
             need += source.max;
         });
         this._requiredCreeps = {
-            [Creep.TYPE_MINER]: need - miners
+            [Creep.TYPE_MINER]: need
         };
     }
 

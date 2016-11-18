@@ -12,15 +12,15 @@ module.exports = class Logistics /*extends require("./Logic.GameTick")*/ {
      * @param {Data.Global} room The current room.
      * @param {Logistics.Action.Abstract[]} actionChain List of action to do.
      * @param {Logistics.Room.Population} population Room population logistic.
-     * @param {Object<Creep.Action>} actions The action list.
+     * @param {logistics.Handler.Action} actionHandler Handler for actions.
      */
-    constructor(game, room, actionChain, population, actions)
+    constructor(game, room, actionChain, population, actionHandler)
     {
         //super(game);
         this._room = room;
         this._actionChain = actionChain;
         this._population = population;
-        this._actions = actions;
+        this._actionHandler = actionHandler;
     }
 
     /**
@@ -36,6 +36,8 @@ module.exports = class Logistics /*extends require("./Logic.GameTick")*/ {
         for(let unit of actions.entries()) {
             if(this._population.create(unit[1])) break;
         }
+
+        this._actionHandler.assignActions();
     }
 
     /**

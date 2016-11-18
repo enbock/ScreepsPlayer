@@ -3,6 +3,17 @@
  */
 module.exports = class Abstract extends require("./Logic.GameTick") {
     /**
+     * Create the tick detector.
+     * 
+     * @param {Data.Global} game Game data cache.
+     * /
+    constructor(game)
+    {
+        super(game);
+        this.assignedCreeps = 0;
+    }*/
+
+    /**
      * Reset runtime values.
      */
     reset()

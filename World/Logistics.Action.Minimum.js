@@ -30,9 +30,9 @@ module.exports = class Minimum extends require("./Logistics.Action.Abstract") {
             this._requiredCreeps = {
                 [Creep.TYPE_MINER]: 1
             };
-        } else if (!types[Creep.TYPE_WORKER]) {
+        } else if (!types[Creep.TYPE_ENERGY]) {
             this._requiredCreeps = {
-                [Creep.TYPE_WORKER]: 1
+                [Creep.TYPE_ENERGY]: 1
             };
         } else {
             this._requiredCreeps = {};
@@ -45,14 +45,5 @@ module.exports = class Minimum extends require("./Logistics.Action.Abstract") {
     get priority()
     {
         return 0; // highest
-    }
-
-    /**
-     * Get action name.
-     *
-     * @returns {string}
-     */
-    toString() {
-        return "Action.None";
     }
 }
