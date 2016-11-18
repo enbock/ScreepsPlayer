@@ -5,7 +5,7 @@ var Creep = require("./Creep");
 module.exports = class Minimum extends require("./Logistics.Action.Abstract") {
     /**
      * Create the chain.
-     * 
+     *
      * @param {Data.Global} game Global game data.
      * @param {Logistics.Room.Creeps} roomCreeps The creeps information.
      */
@@ -25,6 +25,7 @@ module.exports = class Minimum extends require("./Logistics.Action.Abstract") {
 
         // which creep we need?
         var types = this._roomCreeps.types;
+        console.log(JSON.stringify(types));
         if (!types[Creep.TYPE_MINER]) {
             this._requiredCreeps = {
                 [Creep.TYPE_MINER]: 1
@@ -35,7 +36,7 @@ module.exports = class Minimum extends require("./Logistics.Action.Abstract") {
             };
         } else {
             this._requiredCreeps = {};
-        } 
+        }
     }
 
     /**
@@ -46,7 +47,12 @@ module.exports = class Minimum extends require("./Logistics.Action.Abstract") {
         return 0; // highest
     }
 
+    /**
+     * Get action name.
+     *
+     * @returns {string}
+     */
     toString() {
-        return "[Logistics.Action.Minimum]";
+        return "Action.Minimum";
     }
 }

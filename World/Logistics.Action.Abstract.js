@@ -13,7 +13,7 @@ module.exports = class Abstract extends require("./Logic.GameTick") {
 
     /**
      * Get the needed creep amount.
-     * 
+     *
      * @return {Object<type:int>}
      */
     get requiredCreeps()
@@ -32,12 +32,21 @@ module.exports = class Abstract extends require("./Logic.GameTick") {
 
     /**
      * Action to execute.
-     * 
+     *
      * @returns {String|Boolean}
      */
     get action()
     {
         this.resetOnTick();
         return this._action;
+    }
+
+    /**
+     * Get action name.
+     *
+     * @returns {string}
+     */
+    toString() {
+        return "Action.None";
     }
 }

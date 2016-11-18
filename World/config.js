@@ -20,6 +20,7 @@ module.exports = {
                 "@data_room",
                 [
                     "@module_logistics_action_minimum"
+                    , "@module_logistics_action_mine"
                 ],
                 "@module_logistics_population"
             ]
@@ -62,6 +63,14 @@ module.exports = {
                 "@module_logistics_room_creeps"
             ]
         },
+        module_logistics_action_mine: {
+            class: "Logistics.Action.Mine",
+            arguments: [
+                "@data_game",
+                "@data_room",
+                "@module_logistics_room_creeps"
+            ]
+        },
 
         /**
          * Creep
@@ -93,4 +102,4 @@ module.exports = {
             ]
         }
     }
-} 
+}
