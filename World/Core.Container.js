@@ -72,7 +72,6 @@ module.exports = class Container {
             for(var i = 0; i < argument.length; i++) {
                 argument[i] = this.map(argument[i]);
             }
-            return argument;
         }
 
         return argument;

@@ -63,8 +63,10 @@ module.exports = class Mine extends require("./Logistics.Action.Abstract") {
 
         _.forEach(room.find(FIND_SOURCES), source => {
             var item = {
-                target: source.id
+                $: source
+                , target: source.id
                 , max: 0
+                , creeps: 0
             };
             var rx = source.pos.x;
             var ry = source.pos.y;

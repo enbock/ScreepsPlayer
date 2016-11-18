@@ -24,6 +24,7 @@ module.exports = class Spawns extends require("./Logic.GameTick") {
     {
         // spans in room
         this._spawns = undefined;
+        this._roomName = this._room.get().name;
     }
 
     /**
@@ -38,5 +39,14 @@ module.exports = class Spawns extends require("./Logic.GameTick") {
             this._spawns = this._room.get().find(FIND_MY_SPAWNS);
         }
         return this._spawns;
+    }
+
+    /**
+     * Check if reset is needed.
+     */
+    resetOnTick()
+    {
+        super.resetOnTick();
+        if (this._roomName != this._room.get().name) this.reset();
     }
 }

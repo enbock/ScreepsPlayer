@@ -6,11 +6,13 @@ module.exports = class Screeps {
      * Create application and store logistic object.
      * 
      * @param {Logistics} logistic Logistic module.
+     * @param {Creep.Execute.Action} actionExecutor Action runner.
      */
-    constructor(logistic)
+    constructor(logistic, actionExecutor)
     {
         //logitic module
-        this.logistic = logistic;
+        this._logistic = logistic;
+        this._actionExecutor = actionExecutor;
     }
 
     /**
@@ -18,6 +20,7 @@ module.exports = class Screeps {
      */
     run()
     {
-        this.logistic.run();
+        this._logistic.run();
+        this._actionExecutor.run();
     }
 }

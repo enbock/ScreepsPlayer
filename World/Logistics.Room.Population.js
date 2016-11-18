@@ -11,9 +11,9 @@ module.exports = class Population {
      */
     constructor(receipts, creator, spawns) {
         this.caseIgnoreLimit = x => x.priority == 0;
-        this.receipts = receipts;
-        this.creator = creator;
-        this.spawns = spawns;
+        this._receipts = receipts;
+        this._creator = creator;
+        this._spawns = spawns;
     }
 
     /**
@@ -25,6 +25,7 @@ module.exports = class Population {
      */
     create(action)
     {
+        if(this._spawns.get().length == 0) return false;   
         if(this.caseIgnoreLimit(action)) return this.forceSpawn(action);
 
         return this.spawn(action);
@@ -37,19 +38,19 @@ module.exports = class Population {
      */
     forceSpawn(action)
     {
-        var level = this.spawns.get()[0].room.controller.level;
+        var level = this._spawns.get()[0].room.controller.level;
         var workers = Object.keys(action.requiredCreeps);
         var respawns = false;
         for(let i of workers.entries()) {
             var type = i[1];
             var result = -1;
 
-            while(level > 1 || !this.receipts[type][level]) level --;
+            while(level > 1 || !this._receipts[type][level]) level --;
             do {
                 respawns = true;
-                result = this.creator.spawn(
-                    this.spawns.get()[0]
-                    , this.receipts[type][level]
+                result = this._creator.spawn(
+                    this._spawns.get()[0]
+                    , this._receipts[type][level]
                     , type
                 );
                 level --;
@@ -61,32 +62,28 @@ module.exports = class Population {
     }
 
     /**
-     * Spawn a creep with extended receipt search.
+     * Spawn a creep.
      *
-     * @returns {boolean} True if spawn need.
+     * @returns {boolean} True if spawn success.
      */
     spawn(action)
     {
-        var level = this.spawns.get()[0].room.controller.level;
+        var level = this._spawns.get()[0].room.controller.level;
         var workers = Object.keys(action.requiredCreeps);
-        var respawns = false;
         for(let i of workers.entries()) {
             var type = i[1];
             var result = -1;
 
-            while(level > 1 || !this.receipts[type][level]) level --;
-            do {
-                respawns = true;
-                result = this.creator.spawn(
-                    this.spawns.get()[0]
-                    , this.receipts[type][level]
-                    , type
-                );
-                level --;
-            } while(result != OK && level > 0);
+            while(level > 1 || !this._receipts[type][level]) level --;
+            result = this._creator.spawn(
+                this._spawns.get()[0]
+                , this._receipts[type][level]
+                , type
+            );
+            level --;
             if(result == OK) return true; // creep created
         }
         //console.log("spawn for", action, respawns);
-        return respawns;
+        return false;
     }
 }

@@ -16,7 +16,8 @@ module.exports = {
         screeps: {
             class: "Screeps",
             arguments: [
-                "@module_logistics"
+                "@module_logistics",//*,
+                "@creep_executor"//*/
             ]
         },
 
@@ -96,6 +97,26 @@ module.exports = {
             arguments: [
                 "@data_memory",
                 "@data_game"
+            ]
+        },
+        creep_executor: {
+            class: "Creep.Execute.Action",
+            arguments: [
+                [
+                    "@creep_action_none"
+                    , "@creep_action_mine"
+                ],
+                "@module_logistics_room_creeps"
+            ]
+        },
+
+        creep_action_none: {
+            class: "Creep.Action.None"
+        },
+        creep_action_mine: {
+            class: "Creep.Action.Mine",
+            arguments: [
+                "@module_logistics_action_mine"
             ]
         },
 
