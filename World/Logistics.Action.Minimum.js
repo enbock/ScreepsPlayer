@@ -53,6 +53,6 @@ module.exports = class Minimum extends require("./Logistics.Action.Abstract") {
      * @returns {string}
      */
     toString() {
-        return "Action.Minimum";
+        return "Action.None";
     }
 }

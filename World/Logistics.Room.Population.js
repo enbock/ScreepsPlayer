@@ -56,7 +56,7 @@ module.exports = class Population {
             } while(result != OK && level > 0);
             if(result == OK) return true; // creep created
         }
-        console.log("spawn for", action, respawns);
+        //console.log("spawn for", action, respawns);
         return respawns;
     }
 
@@ -86,7 +86,7 @@ module.exports = class Population {
             } while(result != OK && level > 0);
             if(result == OK) return true; // creep created
         }
-        console.log("spawn for", action, respawns);
+        //console.log("spawn for", action, respawns);
         return respawns;
     }
 }
