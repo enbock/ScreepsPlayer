@@ -56,10 +56,11 @@ module.exports = class Mine extends require("./Logistics.Action.Abstract") {
      * @context program
      */
     UpdateMines() {
-        if (this._sources) return this._sources;
+        if (this._sources && this._lastRoom == this._room.get()) return this._sources;
         var sources = []
             , room = this._room.get()
         ;
+        this._lastRoom = room;
 
         _.forEach(room.find(FIND_SOURCES), source => {
             var item = {

@@ -49,13 +49,13 @@ class Creep {
 
     move(target)
     {
-        if (this.$.memory.target != target.id) {
-            delete(this.$.memory.target);
+        if (this.$.memory.moveTarget != target.id) {
+            delete(this.$.memory.moveTarget);
             delete(this.$.memory.movePath);
             delete(this.$.memory.lastStep);
             this.$.memory.moveTry = 0;
         }
-        this.$.memory.target = target.id;
+        this.$.memory.moveTarget = target.id;
 
         if(
             this.$.memory.lastStep
@@ -63,13 +63,22 @@ class Creep {
             && this.$.memory.lastStep.y != this.$.pos.y
         ) {
             if (this.$.memory.movePath.length <= 1) {
-                this.$.memory.movePath = []; // one step missing => arrived.
+                var divX = this.$.memory.lastStep.x - this.$.pos.x;
+                var divY = this.$.memory.lastStep.y - this.$.pos.y;
+                divX = divX < 0 ? divX * - 1 : divX;
+                divY = divY < 0 ? divY * - 1 : divY;
+                if(divX > 1 || divY > 1) {
+                    delete(this.$.memory.movePath); // not movable => new path
+                } else {
+                    this.$.memory.movePath = []; // one step missing => arrived.
+                }
             } else {
                 if(this.$.memory.moveTry > 3) {
                     delete(this.$.memory.movePath); // not movable => new path
                 } else {
                     this.$.memory.moveTry++;
                     this.$.memory.movePath.unshift(this.$.memory.lastStep);
+                    delete(this.$.memory.lastStep);
                 }
             }
         }
@@ -80,8 +89,8 @@ class Creep {
                 this.$.pos
                 , target.pos
                 , {
-                    ignoreCreeps: true
-                    , ignoreRoads: true
+                    //ignoreCreeps: true
+                    ignoreRoads: true
                 }
             );
         }

@@ -26,6 +26,7 @@ module.exports = class Creeps extends require("./Logic.GameTick") {
         this._types =  undefined;
         this._list = undefined;
         this._amount = undefined;
+        this._roomName = this._room.get().name;
     }
 
     /**
@@ -39,7 +40,7 @@ module.exports = class Creeps extends require("./Logic.GameTick") {
         if (this._list === undefined) {
             var creeps = _.filter(
                 this.game.creeps
-                , creep => creep.memory.homeRoom = this._room.get().name
+                , creep => creep.memory.homeRoom == this._room.get().name
             );
             this._list = {}
             this._amount = creeps.length;
@@ -47,7 +48,6 @@ module.exports = class Creeps extends require("./Logic.GameTick") {
                 this._list[creep[1].name] = this.creepCreator.factory(creep[1]);
             }
         }
-
         return this._list;
     }
 
@@ -74,5 +74,14 @@ module.exports = class Creeps extends require("./Logic.GameTick") {
     {
         this.creeps; // refresh cache if needed
         return this._amount;
+    }
+
+    /**
+     * Check if reset is needed.
+     */
+    resetOnTick()
+    {
+        super.resetOnTick();
+        if (this._roomName != this._room.get().name) this.reset();
     }
 }

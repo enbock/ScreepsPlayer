@@ -110,6 +110,6 @@ module.exports = class ActionHandler {
      */
     assign(creeps, action)
     {
-        _.forEach(creeps, creep => creep.action =action);
+        _.forEach(creeps, creep => creep.action = action);
     }
 }

@@ -117,6 +117,7 @@ module.exports = {
             class: "Creep.Action.Mine",
             arguments: [
                 "@module_logistics_action_mine"
+                , "@data_room"
             ]
         },
 
