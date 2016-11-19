@@ -14,7 +14,7 @@ module.exports = class Executor {
     {
         this._actionList = {};
         actionList.forEach(action => {
-            this._actionList[action.toString()] = action;
+            this._actionList[action] = action;
         });
         this._roomCreeps = roomCreeps;
     }

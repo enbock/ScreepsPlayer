@@ -4,7 +4,7 @@
  * This program part handles the logistic activities of the world.
  * It controlles a room.
  */
-module.exports = class Spawns extends require("./Logic.GameTick") {
+module.exports = class LogisticsSpawns extends require("./Logic.GameTick") {
     /**
      * Create logistic.
      * 

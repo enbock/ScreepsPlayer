@@ -2,7 +2,7 @@ var Creep = require("./Creep");
 /**
  * Action chain for the mining creeps amount.
  */
-module.exports = class Mine extends require("./Logistics.Action.Abstract") {
+module.exports = class LogisticsActionMine extends require("./Logistics.Action.Abstract") {
     /**
      * Create the chain.
      *
@@ -10,11 +10,12 @@ module.exports = class Mine extends require("./Logistics.Action.Abstract") {
      * @param {Data.Global} room Global room data.
      * @param {Logistics.Room.Creeps} roomCreeps The creeps information.
      */
-    constructor (game, room, roomCreeps)
+    constructor (game, room, roomCreeps, action2Type)
     {
         super(game);
         this._room = room;
         this._roomCreeps = roomCreeps;
+        this._action2Type = action2Type;
     }
 
     /**
@@ -30,7 +31,7 @@ module.exports = class Mine extends require("./Logistics.Action.Abstract") {
             need += source.max;
         });
         this._requiredCreeps = {
-            [Creep.TYPE_MINER]: need
+            [this._action2Type[this]]: need
         };
     }
 
@@ -80,8 +81,8 @@ module.exports = class Mine extends require("./Logistics.Action.Abstract") {
                     }
                 }
             }
-            _.forEach(Game.creeps, function(creep) {
-                if (creep.memory.target == item.target) item.creeps++;
+            _.forEach(this._roomCreeps.creeps, function(creep) {
+                if (creep.$.memory.target == item.target) item.creeps++;
             });
             sources.push(item);
         });

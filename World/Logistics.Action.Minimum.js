@@ -2,7 +2,7 @@ var Creep = require("./Creep");
 /**
  * Action chain for the minimum creeps amount.
  */
-module.exports = class Minimum extends require("./Logistics.Action.Abstract") {
+module.exports = class LogisticsActionMinimum extends require("./Logistics.Action.Abstract") {
     /**
      * Create the chain.
      *

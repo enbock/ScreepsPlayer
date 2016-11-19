@@ -1,14 +1,46 @@
 module.exports = {
+    /*************************************************************************
+     * Parameters                                                            *
+     ************************************************************************/
     parameters: {
-        action_chain:  [
+        /**
+         * Action chains
+         */
+        logistic_action_chain: [
             "@module_logistics_action_minimum"
             , "@module_logistics_action_mine"
+            , "@module_logistics_action_energy"
         ],
-        action_to_worker: {
+        creep_action_chain: [
+            "@creep_action_none"
+            , "@creep_action_mine"
+            , "@creep_action_energy"
+        ],
+
+        /**
+         * Static configs
+         */
+        receipts: {
+            miner: {
+                1: [MOVE, CARRY, WORK, WORK]
+            },
+            energy: {
+                1: [MOVE, CARRY, CARRY, WORK]
+            }
+        },
+        action2type: {
             ["Action.Mine"]: "miner"
-            , ["Action.Energy"]: "worker"
+            , ["Action.Energy"]: "energy"
+        },
+        actionConditions: {
+            ["Action.Mine"]: creep => true
+            , ["Action.Energy"]: creep => !creep.isFull
         }
     },
+
+    /*************************************************************************
+     * Services                                                              *
+     ************************************************************************/
     services: {
         /**
          * Application
@@ -16,8 +48,8 @@ module.exports = {
         screeps: {
             class: "Screeps",
             arguments: [
-                "@module_logistics",//*,
-                "@creep_executor"//*/
+                "@module_logistics",
+                "@creep_executor"
             ]
         },
 
@@ -29,7 +61,7 @@ module.exports = {
             arguments: [
                 "@data_game",
                 "@data_room",
-                "%action_chain",
+                "%logistic_action_chain",
                 "@module_logistics_population",
                 "@module_logistics_handler_action"
             ]
@@ -42,6 +74,13 @@ module.exports = {
                 "@creep_creator"
             ]
         },
+        module_logistics_room_energy: {
+            class: "Logistics.Room.Energy",
+            arguments: [
+                "@data_game",
+                "@data_room"
+            ]
+        },
         module_logistics_spawns: {
             class: "Logistics.Spawns",
             arguments: [
@@ -52,14 +91,7 @@ module.exports = {
         module_logistics_population: {
             class: "Logistics.Room.Population",
             arguments: [
-                {
-                    miner: {
-                        1: [MOVE, CARRY, WORK, WORK]
-                    },
-                    energy: {
-                        1: [MOVE, CARRY, CARRY, WORK]
-                    }
-                },
+                "%receipts",
                 "@creep_creator",
                 "@module_logistics_spawns"
             ]
@@ -67,9 +99,10 @@ module.exports = {
         module_logistics_handler_action: {
             class: "Logistics.Handler.Action",
             arguments: [
-                "%action_chain",
+                "%logistic_action_chain",
                 "@module_logistics_room_creeps",
-                "%action_to_worker"
+                "%action2type",
+                "%actionConditions"
             ]
         },
 
@@ -85,7 +118,18 @@ module.exports = {
             arguments: [
                 "@data_game",
                 "@data_room",
-                "@module_logistics_room_creeps"
+                "@module_logistics_room_creeps",
+                "%action2type"
+            ]
+        },
+        module_logistics_action_energy: {
+            class: "Logistics.Action.Energy",
+            arguments: [
+                "@data_game",
+                "@data_room",
+                "@module_logistics_room_creeps",
+                "@module_logistics_room_energy",
+                "%action2type"
             ]
         },
 
@@ -105,6 +149,7 @@ module.exports = {
                 [
                     "@creep_action_none"
                     , "@creep_action_mine"
+                    , "@creep_action_energy"
                 ],
                 "@module_logistics_room_creeps"
             ]
@@ -117,6 +162,13 @@ module.exports = {
             class: "Creep.Action.Mine",
             arguments: [
                 "@module_logistics_action_mine"
+                , "@data_room"
+            ]
+        },
+        creep_action_energy: {
+            class: "Creep.Action.Energy",
+            arguments: [
+                "@module_logistics_action_energy"
                 , "@data_room"
             ]
         },

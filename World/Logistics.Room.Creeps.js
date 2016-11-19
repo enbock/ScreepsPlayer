@@ -3,7 +3,7 @@ var MyCreep = require("./Creep");
 /**
  * Creeps in the room.
  */
-module.exports = class Creeps extends require("./Logic.GameTick") {
+module.exports = class LogisticsRoomCreeps extends require("./Logic.GameTick") {
     /**
      * Create creep list.
      * 

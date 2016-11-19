@@ -38,12 +38,10 @@ module.exports = class Mine {
         }
 
         if(creep.isFull) {
-        for(var resourceType in creep.$.carry) {
-            creep.$.drop(resourceType);
+            for(var resourceType in creep.$.carry) {
+                creep.$.drop(resourceType);
+            }
         }
-        return;
-    }
-
     }
 
     /**

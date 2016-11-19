@@ -1,7 +1,7 @@
 /**
  * Population logistic module.
  */
-module.exports = class Population {
+module.exports = class LogisticsRoomPopulation {
     /**
      * Create module.
      *
@@ -34,7 +34,7 @@ module.exports = class Population {
     /**
      * Spawn a creep with extended receipt search.
      *
-     * @returns {boolean} True if spawn need.
+     * @returns {boolean} True, when no other spawns should try.
      */
     forceSpawn(action)
     {
@@ -47,6 +47,7 @@ module.exports = class Population {
 
             while(level > 1 || !this._receipts[type][level]) level --;
             do {
+                //console.log("Prio spawn for", action, respawns);
                 respawns = true;
                 result = this._creator.spawn(
                     this._spawns.get()[0]
@@ -55,16 +56,15 @@ module.exports = class Population {
                 );
                 level --;
             } while(result != OK && level > 0);
-            if(result == OK) return true; // creep created
+            if(result == OK) break; // creep created
         }
-        //console.log("spawn for", action, respawns);
         return respawns;
     }
 
     /**
      * Spawn a creep.
      *
-     * @returns {boolean} True if spawn success.
+     * @returns {boolean} True, when no other spawns should try.
      */
     spawn(action)
     {
@@ -75,15 +75,15 @@ module.exports = class Population {
             var result = -1;
 
             while(level > 1 || !this._receipts[type][level]) level --;
+            //console.log("Spawn for", action);
             result = this._creator.spawn(
                 this._spawns.get()[0]
                 , this._receipts[type][level]
                 , type
             );
             level --;
-            if(result == OK) return true; // creep created
+            if(result == OK) break; // creep created
         }
-        //console.log("spawn for", action, respawns);
-        return false;
+        return true;
     }
 }

@@ -3,19 +3,21 @@
  * 
  * Controlls, which of the extistent creeps service which action.
  */
-module.exports = class ActionHandler {
+module.exports = class LogisticsHandlerAction {
     /**
      * Create the handler.
      * 
      * @param {Logistics.Action[]} actionChain List of action to do.
      * @param {Logistics.Room.Creeps} roomCreeps The creeps information.
      * @param {Object<string:string>} action2type Map from action to worker type
+     * @param {Object<string:Function>} assignContions Map of conditions for assign.
      */
-    constructor(actionChain, roomCreeps, action2type)
+    constructor(actionChain, roomCreeps, action2type, assignContions)
     {
         this._actionChain = actionChain;
         this._roomCreeps = roomCreeps;
         this._action2type = action2type;
+        this._assignContions = assignContions;
     }
 
     /**
@@ -38,7 +40,8 @@ module.exports = class ActionHandler {
 
         _.forEach(sorted, action => {
             var max = action.unit.requiredCreeps[this._action2type[action.name]];
-            //console.log(action.name, "need", max, "have", action.count);
+            if(max === undefined) return; // no requirement for action
+            console.log(action.name, "need", max, "have", action.count);
             if(action.count >= max) return;
 
             var creeps = this.requestFreeCreeps(
@@ -110,6 +113,11 @@ module.exports = class ActionHandler {
      */
     assign(creeps, action)
     {
-        _.forEach(creeps, creep => creep.action = action);
+        _.forEach(creeps, creep => {
+            if (this._assignContions && this._assignContions[action](creep)) {
+                console.log("Assign", creep, "for", action);
+                creep.action = action
+            }
+        });
     }
 }

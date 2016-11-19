@@ -10,7 +10,7 @@ module.exports = class Logistics /*extends require("./Logic.GameTick")*/ {
      *
      * @param {Data.Global} game The global game object.
      * @param {Data.Global} room The current room.
-     * @param {Logistics.Action.Abstract[]} actionChain List of action to do.
+     * @param {Logistics.Action[]} actionChain List of action to do.
      * @param {Logistics.Room.Population} population Room population logistic.
      * @param {logistics.Handler.Action} actionHandler Handler for actions.
      */

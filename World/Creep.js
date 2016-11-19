@@ -47,17 +47,23 @@ class Creep {
         return this.$.memory.action;
     }
 
+    /**
+     * Move the creep to target.
+     * 
+     * @param {Object} Target to move on.  
+     */
     move(target)
     {
-        if (this.$.memory.moveTarget != target.id) {
+        var ignoreCreeps = true;
+
+        if (this.$.memory.moveTarget != target.id || (this.$.memory.movePath && this.$.memory.movePath.length == 0)) {
+            ignoreCreeps = !(this.$.memory.movePath && this.$.memory.movePath.length == 0);
             delete(this.$.memory.moveTarget);
             delete(this.$.memory.movePath);
             delete(this.$.memory.lastStep);
             this.$.memory.moveTry = 0;
         }
         this.$.memory.moveTarget = target.id;
-
-        var ignoreCreeps = true;
 
         if(
             this.$.memory.lastStep
@@ -88,6 +94,7 @@ class Creep {
         }
 
         if (!this.$.memory.movePath) {
+            this.$.say("?..--´´");
             PathFinder.use(true);
             this.$.memory.movePath = this.$.room.findPath(
                 this.$.pos
