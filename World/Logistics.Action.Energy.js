@@ -87,18 +87,8 @@ module.exports = class LogisticsActionEnergy extends require("./Logistics.Action
 
     MakeRequirement() {
         var requirements = {};
-        var emptyCreeps = _.filter(
-            this._roomCreeps.creeps,
-            creep => creep.$.memory.type == this._action2Type[this]
-        );
-
-        var haveCreeps = emptyCreeps ? emptyCreeps.length : 0;
         var maxCreeps = Math.round(this._roomEnergy.energyCapacity / 200); //TODO AVG transporter
-        
-        if (haveCreeps < maxCreeps) {
-            requirements[this._action2Type[this]] = maxCreeps - haveCreeps;
-        }
-
+        requirements[this._action2Type[this]] = maxCreeps;
         return requirements;
     }
 
