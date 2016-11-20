@@ -29,7 +29,7 @@ module.exports = class LogisticsActionMine extends require("./Logistics.Action.A
 
         this._sources = this.UpdateMines();
 
-        var need = 0;
+        var need = 1;
 
         // check, that need is under transporters
         var energyCreeps = 0;
