@@ -26,7 +26,7 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
     reset()
     {
         super.reset();
-        this._priority = 0xfb;
+        this._priority = 10;
         this._roomName = this._room.get().name;
         this._targets = this.UpdateStructures();
         this._requiredCreeps = this.MakeRequirement();
