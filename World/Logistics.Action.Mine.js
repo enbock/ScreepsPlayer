@@ -29,7 +29,7 @@ module.exports = class LogisticsActionMine extends require("./Logistics.Action.A
 
         this._sources = this.UpdateMines();
 
-        var need = 1;
+        var need = 0;
 
         // check, that need is under transporters
         var energyCreeps = 0;
@@ -42,6 +42,8 @@ module.exports = class LogisticsActionMine extends require("./Logistics.Action.A
             _.forEach(this.sources, source => {
                 need += source.max;
             });
+        } else {
+            need = minerCreeps;
         }
 
         this._requiredCreeps = {
