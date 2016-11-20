@@ -26,6 +26,7 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
     reset()
     {
         super.reset();
+        this._priority = 0xfb;
         this._roomName = this._room.get().name;
         this._targets = this.UpdateStructures();
         this._requiredCreeps = this.MakeRequirement();
@@ -36,7 +37,8 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
      */
     get priority()
     {
-        return 0xfb;
+        this.resetOnTick();
+        return this._priority;
     }
 
     /**
@@ -87,6 +89,13 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
                     , creeps: 0
                     , order: orders[target.structureType]
                 };
+                if (
+                    target.structureType == STRUCTURE_SPAWN
+                    && target.energyCapacity > target.energy
+                ) {
+                    this._priority *= 1 / target.energyCapacity * target.energy
+                    if (this._priority < 2) this._priority = 2; // highest priority
+                }
                 _.forEach(this._roomCreeps.creeps, function(creep) {
                     if (creep.$.memory.target == item.target) item.creeps++;
                 });
@@ -103,6 +112,7 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
      * Find requirements.
      */
     MakeRequirement() {
+        if (!this.targets.length) return {};
         return {
             [this._action2Type[this]]: this.targets.length * 3
         };

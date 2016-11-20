@@ -36,6 +36,7 @@ module.exports = class LogisticsActionFillController extends require("./Logistic
      */
     get priority()
     {
+        this.resetOnTick(); // if dynamic values needed, let calculate before
         return this._controller === undefined 
             ? 0xfff 
             : 10 * (this._controller.level - 1) + 1 // reduce prio on high level
