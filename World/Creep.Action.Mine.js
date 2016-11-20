@@ -30,6 +30,7 @@ module.exports = class Mine {
             creep.$.memory.target = source.$.id;
             source.creeps++;
         } else if (sources.length == 0) {
+            creep.action = "Action.None";
             return;
         }
         

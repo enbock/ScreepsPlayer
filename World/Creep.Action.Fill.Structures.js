@@ -41,6 +41,7 @@ module.exports = class CreepActionFillStructures {
             creep.$.memory.target = target.$.id;
             target.creeps++;
         } else if (targets.length == 0) {
+            creep.action = "Action.None";
             return;
         }
         
