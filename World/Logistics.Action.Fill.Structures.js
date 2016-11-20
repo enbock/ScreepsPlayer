@@ -74,13 +74,13 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
 
         _.forEach(
             room.find(
-                FIND_MY_STRUCTURES
-            ), target => {
-                // check if wanted structure
-                if(orders[target.structureType] === undefined) {
-                    return;
+                FIND_MY_STRUCTURES,
+                {
+                    filter: 
+                        structure => orders[structure.structureType] !== undefined 
+                        && structure.energy < structure.energyCapacity
                 }
-
+            ), target => {
                 var item = {
                     $: target
                     , target: target.id
