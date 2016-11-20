@@ -10,11 +10,13 @@ module.exports = {
             "@module_logistics_action_minimum"
             , "@module_logistics_action_mine"
             , "@module_logistics_action_energy"
+            , "@module_logistics_action_fill_structures"
         ],
         creep_action_chain: [
             "@creep_action_none"
             , "@creep_action_mine"
             , "@creep_action_energy"
+            , "@creep_action_fill_structures"
         ],
 
         /**
@@ -31,10 +33,12 @@ module.exports = {
         action2type: {
             ["Action.Mine"]: "miner"
             , ["Action.Energy"]: "energy"
+            , ["Action.Fill.Structures"]: "energy"
         },
         actionConditions: {
             ["Action.Mine"]: creep => true
-            , ["Action.Energy"]: creep => !creep.isFull
+            , ["Action.Energy"]: creep => creep.isEmpty
+            , ["Action.Fill.Structures"]: creep => !creep.isEmpty
         }
     },
 
@@ -93,7 +97,8 @@ module.exports = {
             arguments: [
                 "%receipts",
                 "@creep_creator",
-                "@module_logistics_spawns"
+                "@module_logistics_spawns",
+                "@module_logistics_room_creeps"
             ]
         },
         module_logistics_handler_action: {
@@ -132,6 +137,15 @@ module.exports = {
                 "%action2type"
             ]
         },
+        module_logistics_action_fill_structures: {
+            class: "Logistics.Action.Fill.Structures",
+            arguments: [
+                "@data_game",
+                "@data_room",
+                "@module_logistics_room_creeps",
+                "%action2type"
+            ]
+        },
 
         /**
          * Creep
@@ -139,19 +153,15 @@ module.exports = {
         creep_creator: {
             class: "Creep.Creator",
             arguments: [
-                "@data_memory",
-                "@data_game"
+                "@data_memory"
+                , "@data_game"
             ]
         },
         creep_executor: {
             class: "Creep.Execute.Action",
             arguments: [
-                [
-                    "@creep_action_none"
-                    , "@creep_action_mine"
-                    , "@creep_action_energy"
-                ],
-                "@module_logistics_room_creeps"
+                "%creep_action_chain"
+                , "@module_logistics_room_creeps"
             ]
         },
 
@@ -169,6 +179,13 @@ module.exports = {
             class: "Creep.Action.Energy",
             arguments: [
                 "@module_logistics_action_energy"
+                , "@data_room"
+            ]
+        },
+        creep_action_fill_structures: {
+            class: "Creep.Action.Fill.Structures",
+            arguments: [
+                "@module_logistics_action_fill_structures"
                 , "@data_room"
             ]
         },

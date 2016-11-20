@@ -8,12 +8,14 @@ module.exports = class LogisticsRoomPopulation {
      * @param {Object} receipts Creep receipts.
      * @param {Creep.Creator} creator Creep factory.
      * @param {Logistics.Spawns} spawns List of available spawns.
+     * @param {Logistics.Room.Creeps} roomCreeps The creeps information.
      */
-    constructor(receipts, creator, spawns) {
+    constructor(receipts, creator, spawns, roomCreeps) {
         this.caseIgnoreLimit = x => x.priority == 0;
         this._receipts = receipts;
         this._creator = creator;
         this._spawns = spawns;
+        this._roomCreeps = roomCreeps;
     }
 
     /**
@@ -70,10 +72,18 @@ module.exports = class LogisticsRoomPopulation {
     {
         var level = this._spawns.get()[0].room.controller.level;
         var workers = Object.keys(action.requiredCreeps);
+        var spawned = false;
         for(let i of workers.entries()) {
             var type = i[1];
             var result = -1;
 
+            // don't spawn if no need
+            if(
+                action.requiredCreeps[type] <= 0
+                || this._roomCreeps.types[type] >= action.requiredCreeps[type]
+            ) continue;
+
+            spawned = true;
             while(level > 1 || !this._receipts[type][level]) level --;
             //console.log("Spawn for", action);
             result = this._creator.spawn(
@@ -84,6 +94,6 @@ module.exports = class LogisticsRoomPopulation {
             level --;
             if(result == OK) break; // creep created
         }
-        return true;
+        return spawned;
     }
 }

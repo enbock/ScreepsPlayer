@@ -24,12 +24,26 @@ module.exports = class LogisticsActionMine extends require("./Logistics.Action.A
     reset()
     {
         super.reset();
+        this._roomName = this._room.get().name;
         this._action = false; // do nothing.
 
+        this._sources = this.UpdateMines();
+
         var need = 0;
-        _.forEach(this.sources, source => {
-            need += source.max;
+
+        // check, that need is under transporters
+        var energyCreeps = 0;
+        var minerCreeps = 0;
+        _.forEach(this._roomCreeps.creeps, creep => {
+            if(creep.$.memory.type == Creep.TYPE_ENERGY) energyCreeps++;
+            if(creep.$.memory.type == Creep.TYPE_MINER) minerCreeps++;
         });
+        if(minerCreeps < energyCreeps) {
+            _.forEach(this.sources, source => {
+                need += source.max;
+            });
+        }
+
         this._requiredCreeps = {
             [this._action2Type[this]]: need
         };
@@ -53,11 +67,19 @@ module.exports = class LogisticsActionMine extends require("./Logistics.Action.A
     }
 
     /**
+     * Check if reset is needed.
+     */
+    resetOnTick()
+    {
+        super.resetOnTick();
+        if (this._roomName != this._room.get().name) this.reset();
+    }
+
+    /**
      * Find sources once on start the context.
      * @context program
      */
     UpdateMines() {
-        if (this._sources && this._lastRoom == this._room.get()) return this._sources;
         var sources = []
             , room = this._room.get()
         ;
@@ -87,8 +109,7 @@ module.exports = class LogisticsActionMine extends require("./Logistics.Action.A
             sources.push(item);
         });
 
-        this._sources = sources;
-        return this._sources;
+        return sources;
     }
 
     /**
@@ -96,6 +117,7 @@ module.exports = class LogisticsActionMine extends require("./Logistics.Action.A
      */
     get sources()
     {
-        return this.UpdateMines();
+        this.resetOnTick();
+        return this._sources;
     }
 }

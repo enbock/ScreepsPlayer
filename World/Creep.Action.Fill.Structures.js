@@ -1,11 +1,11 @@
 /**
- * Energy taking action.
+ * Structure filling action.
  */
-module.exports = class Energy {
+module.exports = class CreepActionFillStructures {
     /**
-     * Create energy action.
+     * Create filling action.
      * 
-     * @param {Logistics.Action.Energy} logistic The logistic.
+     * @param {Logistics.Action.Fill.Structures} logistic The logistic.
      */
     constructor(logistic, room)
     {
@@ -20,7 +20,7 @@ module.exports = class Energy {
      */
     toString()
     {
-        return "Action.Energy";
+        return "Action.Fill.Structures";
     }
 
     /**
@@ -30,7 +30,7 @@ module.exports = class Energy {
      */
     run(creep)
     {
-        var targets = _.sortBy(this._logistic.targets, "creeps");
+        var targets = this._logistic.targets;
         var target = _.find(
             targets 
             , i => i.$.id == creep.$.memory.target
@@ -44,12 +44,12 @@ module.exports = class Energy {
             return;
         }
         
-        if(creep.$.pickup(target.$) == ERR_NOT_IN_RANGE) {
+        if(creep.$.transfer(target.$, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             creep.move(target.$);
         }
 
-        if(creep.isFull) {
-            creep.$.say("Cargo full");
+        if(target.$.energy >= target.$.energyCapacity || creep.isEmpty) {
+            if(!creep.isEmpty) creep.$.say("Done");
             creep.action = "Action.None";
             return;
         }

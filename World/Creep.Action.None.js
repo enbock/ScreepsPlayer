@@ -9,7 +9,7 @@ module.exports = class None {
      */
     run(creep)
     {
-        if(Math.random() <= 0.4 && Math.random() >= 0.6) creep.$.say("zzZ");
+        if(Math.random() <= 0.4 && Math.random() >= 0.6) creep.$.say("oO");
         creep.$.move(Math.round(Math.random()*7)+1);
     }
 

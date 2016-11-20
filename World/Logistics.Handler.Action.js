@@ -114,7 +114,7 @@ module.exports = class LogisticsHandlerAction {
     assign(creeps, action)
     {
         _.forEach(creeps, creep => {
-            if (this._assignContions && this._assignContions[action](creep)) {
+            if (this._assignContions[action](creep)) {
                 console.log("Assign", creep, "for", action);
                 creep.action = action
             }

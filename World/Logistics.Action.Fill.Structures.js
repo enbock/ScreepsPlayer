@@ -1,23 +1,22 @@
 var Creep = require("./Creep");
 /**
- * Action logitic to take energy drops.
+ * Action logitic to refill structures.
+ * Searches for energy which need and consumer energy.
  */
-module.exports = class LogisticsActionEnergy extends require("./Logistics.Action.Abstract") {
+module.exports = class LogisticsActionFillStructures extends require("./Logistics.Action.Abstract") {
     /**
-     * Create the action logistic.
+     * Create the action logitic.
      *
      * @param {Data.Global} game Global game data.
      * @param {Data.Global} room Global room data.
      * @param {Logistics.Room.Creeps} roomCreeps The creeps information.
-     * @param {Logistics.Room.Energy} roomEnergy The energy information.
      * @param {Object} action2Type Action map. 
      */
-    constructor (game, room, roomCreeps, roomEnergy, action2Type)
+    constructor (game, room, roomCreeps, action2Type)
     {
         super(game);
         this._room = room;
         this._roomCreeps = roomCreeps;
-        this._roomEnergy = roomEnergy;
         this._action2Type = action2Type;
     }
 
@@ -28,7 +27,7 @@ module.exports = class LogisticsActionEnergy extends require("./Logistics.Action
     {
         super.reset();
         this._roomName = this._room.get().name;
-        this._targets = this.UpdateEnegry();
+        this._targets = this.UpdateStructures();
         this._requiredCreeps = this.MakeRequirement();
     }
 
@@ -46,7 +45,7 @@ module.exports = class LogisticsActionEnergy extends require("./Logistics.Action
      * @returns {string}
      */
     toString() {
-        return "Action.Energy";
+        return "Action.Fill.Structures";
     }
 
     /**
@@ -62,18 +61,31 @@ module.exports = class LogisticsActionEnergy extends require("./Logistics.Action
      * Find sources once on start the context.
      * @context program
      */
-    UpdateEnegry() {
+    UpdateStructures() {
         var targets = []
             , room = this._room.get()
         ;
 
+        const orders = {
+            [STRUCTURE_SPAWN]: 0,
+            [STRUCTURE_TOWER]: 2,
+            [STRUCTURE_EXTENSION]: 4
+        }
+
         _.forEach(
-            this._roomEnergy.targets, target => {
+            room.find(
+                FIND_MY_STRUCTURES
+            ), target => {
+                // check if wanted structure
+                if(orders[target.structureType] === undefined) {
+                    return;
+                }
+
                 var item = {
                     $: target
                     , target: target.id
-                    , max: 0
                     , creeps: 0
+                    , order: orders[target.structureType]
                 };
                 _.forEach(this._roomCreeps.creeps, function(creep) {
                     if (creep.$.memory.target == item.target) item.creeps++;
@@ -81,25 +93,16 @@ module.exports = class LogisticsActionEnergy extends require("./Logistics.Action
                 targets.push(item);
             }
         );
+        
+        targets = _.sortBy(targets, target => target.order);
 
         return targets;
     }
 
     MakeRequirement() {
-        var requirements = {};
-        var emptyCreeps = _.filter(
-            this._roomCreeps.creeps,
-            creep => creep.$.memory.type == this._action2Type[this]
-        );
-
-        var haveCreeps = emptyCreeps ? emptyCreeps.length : 0;
-        var maxCreeps = Math.round(this._roomEnergy.energyCapacity / 200); //TODO AVG transporter
-
-        if (haveCreeps < maxCreeps) {
-            requirements[this._action2Type[this]] = maxCreeps - haveCreeps;
-        }
-
-        return requirements;
+        return {
+            [this._action2Type[this]]: this.targets.length * 3
+        };
     }
 
     /**

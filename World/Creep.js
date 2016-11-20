@@ -32,7 +32,8 @@ class Creep {
      */
     set action(action)
     {
-        this.$.say(action.replace("Action.", ""));
+        if(action != "Action.None")
+            this.$.say(action.replace("Action.", ""));
         this.$.memory.action = action;
     }
 
@@ -94,7 +95,7 @@ class Creep {
         }
 
         if (!this.$.memory.movePath) {
-            this.$.say("?..--´´");
+            //this.$.say("?..--´´");
             PathFinder.use(true);
             this.$.memory.movePath = this.$.room.findPath(
                 this.$.pos
@@ -125,6 +126,16 @@ class Creep {
     get isFull()
     {
         return _.sum(this.$.carry) == this.$.carryCapacity;
+    }
+
+    /**
+     * Check if carry is empty.
+     * 
+     * @returns {boolean} true wenn carry is empty. 
+     */
+    get isEmpty()
+    {
+        return _.sum(this.$.carry) == 0;
     }
 }
 
