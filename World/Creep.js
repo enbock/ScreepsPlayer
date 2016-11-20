@@ -102,7 +102,7 @@ class Creep {
                 , target.pos
                 , {
                     ignoreCreeps: ignoreCreeps
-                    ,ignoreRoads: true
+                    ,ignoreRoads: false // true
                 }
             );
         }

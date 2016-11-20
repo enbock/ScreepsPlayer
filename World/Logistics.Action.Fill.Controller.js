@@ -1,9 +1,8 @@
 var Creep = require("./Creep");
 /**
- * Action logitic to refill structures.
- * Searches for energy which need and consumer energy.
+ * Action logitic to refill controller.
  */
-module.exports = class LogisticsActionFillStructures extends require("./Logistics.Action.Abstract") {
+module.exports = class LogisticsActionFillController extends require("./Logistics.Action.Abstract") {
     /**
      * Create the action logitic.
      *
@@ -27,6 +26,7 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
     {
         super.reset();
         this._roomName = this._room.get().name;
+        this._controller = undefined;
         this._targets = this.UpdateStructures();
         this._requiredCreeps = this.MakeRequirement();
     }
@@ -36,7 +36,9 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
      */
     get priority()
     {
-        return 0xfb;
+        return this._controller === undefined 
+            ? 0xfff 
+            : 10 * (this._controller.level - 1) + 1 // reduce prio on high level
     }
 
     /**
@@ -45,7 +47,7 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
      * @returns {string}
      */
     toString() {
-        return "Action.Fill.Structures";
+        return "Action.Fill.Controller";
     }
 
     /**
@@ -65,37 +67,22 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
         var targets = []
             , room = this._room.get()
         ;
+        var controller = this._room.get().controller;
 
-        const orders = {
-            [STRUCTURE_SPAWN]: 0,
-            [STRUCTURE_TOWER]: 2,
-            [STRUCTURE_EXTENSION]: 4
-        }
+        if(controller && controller.my && controller.progressTotal > 0) {
+            var item = {
+                $: controller
+                , target: controller.id
+                , creeps: 0
+            };
+            _.forEach(this._roomCreeps.creeps, function(creep) {
+                if (creep.$.memory.target == item.target) item.creeps++;
+            });
+            targets.push(item);
 
-        _.forEach(
-            room.find(
-                FIND_MY_STRUCTURES,
-                {
-                    filter: 
-                        structure => orders[structure.structureType] !== undefined 
-                        && structure.energy < structure.energyCapacity
-                }
-            ), target => {
-                var item = {
-                    $: target
-                    , target: target.id
-                    , creeps: 0
-                    , order: orders[target.structureType]
-                };
-                _.forEach(this._roomCreeps.creeps, function(creep) {
-                    if (creep.$.memory.target == item.target) item.creeps++;
-                });
-                targets.push(item);
-            }
-        );
+            this._controller = controller;
+        }            
         
-        targets = _.sortBy(targets, target => target.order);
-
         return targets;
     }
 
@@ -104,7 +91,10 @@ module.exports = class LogisticsActionFillStructures extends require("./Logistic
      */
     MakeRequirement() {
         return {
-            [this._action2Type[this]]: this.targets.length * 3
+            [this._action2Type[this]]: 
+                this._controller === undefined 
+                ? 0 
+                : this._controller.level * 4
         };
     }
 
