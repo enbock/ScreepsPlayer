@@ -39,8 +39,14 @@ module.exports = {
             , ["Action.Fill.Controller"]: "energy"
         },
         actionConditions: {
+            /**
+             * @dev: Good idea to have code here? Normalize not.
+             *       Refactor idea: Make condition classes.
+             */
             ["Action.Mine"]: creep => true
-            , ["Action.Energy"]: creep => creep.isEmpty
+            , ["Action.Energy"]: creep => creep.isEmpty || (
+                !creep.isFull && creep.action == "Action.None"
+            )
             , ["Action.Fill.Structures"]: creep => !creep.isEmpty
             , ["Action.Fill.Controller"]: creep => !creep.isEmpty
         }
