@@ -1,5 +1,6 @@
 enum Role {
-  Miner= "Miner"
+  Miner = 'Miner',
+  Defender = 'Defender',
 }
 
 export default Role;

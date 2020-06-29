@@ -1,20 +1,20 @@
 import {CreateCreepData} from '../Command/Action/CreateCreep';
 import Queue, {Command} from '../Command/Queue';
-import Memory from '../Screeps/Memory';
+import CreepProvider from '../Screeps/CreepProvider';
 import Role from '../Screeps/Role';
 
 interface RequestedCreep {
   [role:string]:number
 }
 
-export default class SpawnCreep {
+export default class SpawnCreeps {
   requested: RequestedCreep;
-  private game: Game;
+  private creepProvider: CreepProvider;
   private commandQueue: Queue;
 
-  constructor(game: Game, commandQueue: Queue) {
+  constructor(commandQueue: Queue, creepProvider:CreepProvider) {
+    this.creepProvider = creepProvider;
     this.commandQueue = commandQueue;
-    this.game = game;
 
     this.requested = {};
   }
@@ -24,13 +24,8 @@ export default class SpawnCreep {
 
     if (target <= requested) return;
 
-    let current: number = 0;
-    Object.keys(this.game.creeps).forEach(
-      (name: string): void => {
-        const creep: Creep = this.game.creeps[name];
-        if ((creep.memory as Memory).role == role) current++;
-      }
-    );
+    const screeps:Creep[] = this.creepProvider.getByRole(room, role);
+    let current: number = screeps.length;
     if (current > requested) requested = current;
     this.requested[role] = requested;
     if (target <= requested) return;

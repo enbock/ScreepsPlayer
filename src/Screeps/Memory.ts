@@ -1,5 +1,10 @@
 import Role from './Role';
 
 export default interface Memory {
-  role:Role
+  role: Role,
+  canFight: boolean,
+  roomId: string,
+  isWalking: boolean,
+  action: string,
+  targetId: string
 }

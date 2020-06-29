@@ -18,6 +18,7 @@
     "typescript": "^3.9.5"
   },
   "scripts": {
-    "start": "tsc -b tsconfig.json -w"
+    "start": "tsc -b tsconfig.json -w",
+    "build": "npx rollup -c"
   }
 }

@@ -28,13 +28,19 @@ export default class CreateCreep implements Action {
     let result: ScreepsReturnCode = ERR_BUSY;
     const spawnPool: StructureSpawn[] = this.spawnProvider.getByRoom(data.room);
 
-    for (let index = 0; index < spawnPool.length && result != OK; index++) {
+    for (let index: number = 0; index < spawnPool.length && result != OK; index++) {
+      const body: BodyPartConstant[] = this.creepConfigurations[data.role];
       result = spawnPool[index].spawnCreep(
-        this.creepConfigurations[data.role],
-        'Miner:' + randomizer(),
+        body,
+        data.role + ':' + randomizer(),
         {
           memory: {
-            role: data.role
+            role: data.role,
+            canFight: body.indexOf(ATTACK) != -1 || body.indexOf(RANGED_ATTACK) != -1,
+            roomId: data.room.name,
+            action: IDLE,
+            isWalking: false,
+            targetId: ''
           } as Memory
         }
       );

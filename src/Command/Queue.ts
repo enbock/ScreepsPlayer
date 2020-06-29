@@ -1,5 +1,8 @@
 export enum Command {
-  CreateCreep = 'CreateCreep'
+  CreateCreep = 'CreateCreep',
+  MoveCreep = 'MoveCreep',
+  ChangeAction = 'ChangeAction',
+  ExecuteAction = 'ExecuteAction',
 }
 
 export interface Data {
@@ -10,8 +13,6 @@ export interface QueueEntry {
   command: Command
   data: Data
 }
-
-export class QueueEmptyException extends Error {}
 
 export default class Queue {
   private queue: QueueEntry[];
@@ -24,11 +25,10 @@ export default class Queue {
     this.queue.push(data);
   }
 
-  pull(): QueueEntry {
-    if (this.queue.length == 0) {
-      throw new QueueEmptyException();
-    }
+  pullQueue(): QueueEntry[] {
+    const result:QueueEntry[] = this.queue;
+    this.queue = [];
 
-    return this.queue.shift();
+    return result;
   }
 }

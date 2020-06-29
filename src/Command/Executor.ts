@@ -1,7 +1,7 @@
 import Queue, {Data, QueueEntry} from './Queue';
 
 export interface Action {
-  run(data: Data): ScreepsReturnCode;
+  run(queueData: Data): ScreepsReturnCode;
 }
 
 export interface CommandToActionMap {
@@ -18,14 +18,13 @@ export default class Executor {
   }
 
   run(): void {
-    try {
-      const entry: QueueEntry = this.commandQueue.pull();
+    const queue: QueueEntry[] = this.commandQueue.pullQueue();
+
+    queue.forEach((entry: QueueEntry): void => {
       const result: ScreepsReturnCode = this.commandToActionMap[entry.command].run(entry.data);
       if (result != OK) {
         this.commandQueue.add(entry);
       }
-    } catch (exception) {
-
-    }
+    });
   }
 }

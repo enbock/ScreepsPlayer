@@ -6,6 +6,8 @@ console.log("-----------------------------------------------");
 
 Container.directives.initialize();
 
+(global as any).IDLE = 'idle';
+
 export function loop(): void {
   Container.directives.run();
   Container.executor.run();
