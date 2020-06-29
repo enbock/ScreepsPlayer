@@ -1,0 +1,23 @@
+{
+  "name": "screeps-player",
+  "version": "2020.07",
+  "main": "index.js",
+  "repository": "https://github.com/enbock/ScreepsPlayer.git",
+  "author": "Endre Bock <dev@itbock.de>",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/cli": "^7.10.3",
+    "@babel/core": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
+    "@babel/preset-typescript": "^7.10.1",
+    "@enbock/simple-storage": "^1.0.3",
+    "@enbock/state-value-observer": "^1.1.5",
+    "@rollup/plugin-node-resolve": "^8.1.0",
+    "@types/screeps": "^3.1.2",
+    "rollup": "^2.18.1",
+    "typescript": "^3.9.5"
+  },
+  "scripts": {
+    "start": "tsc -b tsconfig.json -w"
+  }
+}
