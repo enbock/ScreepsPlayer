@@ -1,12 +1,14 @@
-import Memory from '../Screeps/Memory';
-
 export enum Command {
   CreateCreep = 'CreateCreep'
 }
 
+export interface Data {
+
+}
+
 export interface QueueEntry {
   command: Command
-  memory: Memory
+  data: Data
 }
 
 export class QueueEmptyException extends Error {}
@@ -18,8 +20,8 @@ export default class Queue {
     this.queue = [];
   }
 
-  add(entry: QueueEntry): void {
-    this.queue.push(entry);
+  add(data: QueueEntry): void {
+    this.queue.push(data);
   }
 
   pull(): QueueEntry {

@@ -6,7 +6,8 @@
     "declaration": false,
     "newLine": "LF",
     "outDir": "dist",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "listEmittedFiles": true
   },
   "include": [
     "./src/**/*.ts"

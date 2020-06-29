@@ -1,32 +1,25 @@
-import SpawnCreep from './Directives/SpawnCreep';
-import Role from './Screeps/Role';
-
-export interface DirectiveCatalog {
-  spawn:SpawnCreep
-}
-
-export interface CreepAmountTarget {
-  [role:string]: number
-}
+import Handler from './Directives/Handler';
+import HandlerFactory from './Directives/HandlerFactory';
 
 export default class Directives {
-  private targetCreepAmount: CreepAmountTarget;
+  handlers: Handler[];
+  private factory: HandlerFactory;
   private game: Game;
-  private directives: DirectiveCatalog;
 
-  constructor(game:Game, directives:DirectiveCatalog) {
-    this.directives = directives;
+  constructor(game: Game, factory: HandlerFactory) {
     this.game = game;
-    this.targetCreepAmount = {
-      [Role.Miner]: 5
-    };
+    this.factory = factory;
+    this.handlers = [];
+  }
+
+  initialize(): void {
+    for (let roomName in this.game.rooms) {
+      const room = this.game.rooms[roomName];
+      this.handlers.push(this.factory.create(room));
+    }
   }
 
   run():void {
-    Object.keys(this.targetCreepAmount).forEach(
-      (role:Role):void => {
-        this.directives.spawn.run(role, this.targetCreepAmount[role]);
-      }
-    )
+    this.handlers.forEach((handler: Handler) => handler.run());
   }
 }

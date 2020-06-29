@@ -1,8 +1,7 @@
-import Memory from '../Screeps/Memory';
-import Queue, {QueueEntry} from './Queue';
+import Queue, {Data, QueueEntry} from './Queue';
 
 export interface Action {
-  run(data: Memory): ScreepsReturnCode;
+  run(data: Data): ScreepsReturnCode;
 }
 
 export interface CommandToActionMap {
@@ -21,7 +20,7 @@ export default class Executor {
   run(): void {
     try {
       const entry: QueueEntry = this.commandQueue.pull();
-      const result:ScreepsReturnCode = this.commandToActionMap[entry.command].run(entry.memory);
+      const result: ScreepsReturnCode = this.commandToActionMap[entry.command].run(entry.data);
       if (result != OK) {
         this.commandQueue.add(entry);
       }

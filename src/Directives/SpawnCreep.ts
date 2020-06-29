@@ -1,3 +1,4 @@
+import {CreateCreepData} from '../Command/Action/CreateCreep';
 import Queue, {Command} from '../Command/Queue';
 import Memory from '../Screeps/Memory';
 import Role from '../Screeps/Role';
@@ -18,7 +19,7 @@ export default class SpawnCreep {
     this.requested = {};
   }
 
-  run(role: Role, target: number): void {
+  run(room:Room, role: Role, target: number): void {
     let requested: number = this.requested[role] || 0;
 
     if (target <= requested) return;
@@ -34,13 +35,13 @@ export default class SpawnCreep {
     this.requested[role] = requested;
     if (target <= requested) return;
 
-    console.log('[Spawn] Request', role, 'creep.');
     this.commandQueue.add(
       {
         command: Command.CreateCreep,
-        memory: {
-          role: role
-        }
+        data: {
+          role: role,
+          room: room
+        } as CreateCreepData
       }
     );
     this.requested[role] = requested + 1;
